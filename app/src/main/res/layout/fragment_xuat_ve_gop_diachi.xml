@@ -1,0 +1,209 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layout_frament_xuatvegopdiachi"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="10dp"
+    tools:context="com.vnpt.staffhddt.er58.XuatVeGopDiaChiFragment">
+
+
+<!--    <com.rengwuxian.materialedittext.MaterialEditText-->
+<!--        android:id="@+id/edtSoLuongThang2"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_below="@+id/txtSoLuongThang"-->
+<!--        android:hint="Nhập số lượng Tháng"-->
+<!--        android:inputType="number"-->
+<!--        android:text="1" />-->
+
+    <TextView
+        android:id="@+id/txtInVeGop"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:layout_centerHorizontal="true"
+        android:textColor="@android:color/holo_red_light"
+        android:text="Màn hình in vé gộp có tên, địa chỉ"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:id="@+id/txtCompanyInfo"
+        android:layout_below="@+id/txtInVeGop"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/holo_blue_light"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:text="Cong ty A SaMa" />
+
+    <TextView
+        android:layout_below="@+id/txtCompanyInfo"
+        android:layout_marginTop="10dp"
+        android:id="@+id/txtMenhGia"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Mệnh giá:" />
+
+    <Spinner
+        android:id="@+id/spMenhGia"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/txtMenhGia" />
+
+    <TextView
+        android:id="@+id/txtTenKhachHang"
+        android:layout_below="@+id/spMenhGia"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Tên khách hàng" />
+
+    <com.rengwuxian.materialedittext.MaterialEditText
+        android:id="@+id/edtTenKhachHang"
+        android:inputType="text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/txtTenKhachHang"
+        android:hint="Nhập tên khách hàng" />
+
+    <TextView
+        android:id="@+id/txtDiaChi"
+        android:layout_below="@+id/edtTenKhachHang"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Địa chỉ" />
+
+    <com.rengwuxian.materialedittext.MaterialEditText
+        android:id="@+id/edtDiaChi"
+        android:inputType="text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/txtDiaChi"
+        android:hint="Nhập địa chỉ" />
+
+<!--    <TextView-->
+<!--        android:id="@+id/txtSoLuong"-->
+<!--        android:layout_below="@+id/edtDiaChi"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="Số lượng" />-->
+
+<!--    <com.rengwuxian.materialedittext.MaterialEditText-->
+<!--        android:id="@+id/edtSoLuong"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_below="@+id/txtSoLuong"-->
+<!--        android:hint="Nhập số lượng"-->
+<!--        android:inputType="number"-->
+<!--        android:text="1" />-->
+
+
+<!--    <EditText-->
+<!--        android:id="@+id/tuThang"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_below="@+id/edtSoLuongThang"-->
+<!--        android:hint="Từ Tháng" />-->
+
+    <TextView
+        android:layout_below="@+id/edtDiaChi"
+        android:layout_marginTop="10dp"
+        android:id="@+id/txtTuThang"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Từ tháng:" />
+    <Spinner
+        android:id="@+id/tuThang"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/txtTuThang"
+        android:spinnerMode="dropdown" />
+
+    <EditText
+        android:id="@+id/tuNam"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tuThang"
+        android:hint="Từ Năm" />
+    <TextView
+        android:layout_below="@+id/tuNam"
+        android:layout_marginTop="10dp"
+        android:id="@+id/txtDenThang"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Đến tháng:" />
+    <Spinner
+        android:id="@+id/denThang"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/txtDenThang"
+        android:spinnerMode="dropdown" />
+
+<!--    <EditText-->
+<!--        android:id="@+id/denThang"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_below="@+id/tuNam"-->
+<!--        android:hint="Đến tháng" />-->
+
+    <EditText
+        android:id="@+id/denNam"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/denThang"
+        android:hint="Đến năm" />
+
+    <TextView
+        android:id="@+id/txtSoLuongThang"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/denNam"
+        android:text="Số lượng tháng" />
+
+    <com.rengwuxian.materialedittext.MaterialEditText
+        android:id="@+id/edtSoLuongThang"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/txtSoLuongThang"
+        android:hint="Nhập số lượng tháng"
+        android:inputType="number"
+        android:text="1" />
+
+
+    <Button
+        android:id="@+id/btnXuatBienLai"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/edtSoLuongThang"
+        android:layout_marginTop="0dp"
+        android:text="Xuất vé" />
+
+    <Button
+        android:id="@+id/btnCheck"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/btnXuatBienLai"
+        android:layout_marginTop="0dp"
+        android:text="Check thiết bị" />
+
+    <Button
+        android:id="@+id/btnInThu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/btnCheck"
+        android:layout_marginTop="0dp"
+        android:text="In thử" />
+
+    <RelativeLayout
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+
+
+
+    </RelativeLayout>
+
+</RelativeLayout>
+
+

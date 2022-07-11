@@ -1,0 +1,100 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:padding="5dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.vnpt.staffhddt.StatictisFragment">
+
+    <EditText
+        android:id="@+id/edtDateFrom"
+        android:focusable="false"
+        android:hint="Từ ngày"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <EditText
+        android:id="@+id/edtDateTo"
+        android:layout_below="@+id/edtDateFrom"
+        android:focusable="false"
+        android:hint="Đến ngày"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <EditText
+        android:id="@+id/edtUser"
+        android:layout_below="@+id/edtDateTo"
+        android:hint="Nhập tên user"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+    <Spinner
+        android:id="@+id/spMenhGia"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/edtUser" />
+
+    <Button
+        android:id="@+id/btnXem"
+        android:layout_below="@+id/spMenhGia"
+        android:text="Xem số lượng"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <RelativeLayout
+        android:layout_marginTop="20dp"
+        android:layout_below="@id/btnXem"
+        android:background="@drawable/border_goc_tron"
+        android:layout_centerHorizontal="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/txtTitle"
+            android:text="Hôm nay đã bán:"
+            android:layout_margin="10dp"
+            android:textSize="@dimen/font_20"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:id="@+id/txtCount"
+            android:textStyle="bold"
+            android:layout_centerHorizontal="true"
+            android:layout_margin="20dp"
+            android:textColor="@color/colorPrimaryDark"
+            android:layout_below="@+id/txtTitle"
+            android:textSize="26sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_marginTop="200dp"
+        android:layout_below="@id/btnXem"
+        android:background="@drawable/border_goc_tron"
+        android:layout_centerHorizontal="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+
+
+        <TextView
+            android:id="@+id/txtTitleAmount"
+            android:text="Số tiền thu được :"
+            android:layout_margin="10dp"
+            android:textSize="@dimen/font_20"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:id="@+id/txtAmount"
+            android:textStyle="bold"
+            android:layout_centerHorizontal="true"
+            android:layout_margin="20dp"
+            android:textColor="@color/colorPrimaryDark"
+            android:layout_below="@+id/txtTitleAmount"
+            android:textSize="26sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+    </RelativeLayout>
+</RelativeLayout>

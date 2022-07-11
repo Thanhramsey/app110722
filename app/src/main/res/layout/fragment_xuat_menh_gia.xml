@@ -1,0 +1,97 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layout_frament_xuatvemenhgia"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="10dp"
+    tools:context="com.vnpt.staffhddt.er58.XuatVeGopFragment">
+
+    <TextView
+        android:id="@+id/txtInVeGop"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:layout_centerHorizontal="true"
+        android:textColor="@android:color/holo_red_light"
+        android:text="Màn hình in vé có mệnh giá"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:id="@+id/txtCompanyInfo"
+        android:layout_below="@+id/txtInVeGop"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/holo_blue_light"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:text="Cong ty A SaMa" />
+
+    <TextView
+        android:layout_below="@+id/txtCompanyInfo"
+        android:layout_marginTop="10dp"
+        android:id="@+id/txtMenhGia"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Mệnh giá:" />
+
+    <Spinner
+        android:id="@+id/spMenhGia"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/txtMenhGia" />
+
+    <TextView
+        android:id="@+id/txtSoLuong"
+        android:layout_below="@+id/spMenhGia"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Số lượng" />
+
+    <com.rengwuxian.materialedittext.MaterialEditText
+        android:id="@+id/edtSoLuong"
+        android:inputType="number"
+        android:text="1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/txtSoLuong"
+        android:hint="Nhập số lượng" />
+
+
+    <Button
+        android:id="@+id/btnCheck"
+        android:text="Check thiết bị"
+        android:layout_width="match_parent"
+        android:layout_below="@+id/edtSoLuong"
+        android:layout_height="wrap_content"/>
+
+    <Button
+        android:id="@+id/btnInThu"
+        android:layout_below="@+id/btnCheck"
+        android:text="In thử"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+
+    <Button
+        android:id="@+id/btnXuatBienLai"
+        android:layout_below="@+id/btnInThu"
+        android:text="Xuất vé"
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        />
+
+
+    <RelativeLayout
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+
+
+    </RelativeLayout>
+
+</RelativeLayout>
+
+

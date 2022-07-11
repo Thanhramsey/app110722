@@ -1,0 +1,169 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layout_fragment_xuat_ve_xekhach"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:weightSum="11"
+    android:padding="10dp"
+    tools:context="com.vnpt.staffhddt.er58.XuatVeGopFragment">
+
+    <ScrollView
+        android:id="@+id/top_content"
+        android:layout_marginBottom="5dp"
+        android:layout_width="match_parent"
+        android:layout_weight="10"
+        android:layout_height="0dp"
+        android:fillViewport="true">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/txtInVeGop"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:layout_centerHorizontal="true"
+                android:textColor="@android:color/holo_red_light"
+                android:text="Màn hình in vé xe"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                android:id="@+id/txtCompanyInfo"
+                android:layout_below="@+id/txtInVeGop"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/holo_blue_light"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:text="Cong ty A SaMa" />
+
+            <TextView
+                android:layout_below="@+id/txtCompanyInfo"
+                android:layout_marginTop="10dp"
+                android:id="@+id/txtMenhGia"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Mệnh giá:" />
+
+            <Spinner
+                android:id="@+id/spMenhGia"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/txtMenhGia" />
+
+            <TextView
+                android:id="@+id/txtTuyenDuong"
+                android:layout_below="@+id/spMenhGia"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Tuyến đường :" />
+
+            <com.rengwuxian.materialedittext.MaterialEditText
+                android:id="@+id/edtTuyenDuong"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/txtTuyenDuong"
+                android:hint="Nhập bến đi - bến đến" />
+
+            <TextView
+                android:id="@+id/txtSoGhe"
+                android:layout_below="@+id/edtTuyenDuong"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Số ghế/giường :" />
+
+            <com.rengwuxian.materialedittext.MaterialEditText
+                android:id="@+id/edtSoGhe"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/txtSoGhe"
+                android:hint="Nhập số ghế/giường" />
+
+            <TextView
+                android:id="@+id/txtSoXe"
+                android:layout_below="@+id/edtSoGhe"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Số xe :" />
+
+            <com.rengwuxian.materialedittext.MaterialEditText
+                android:id="@+id/edtSoXe"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/txtSoXe"
+                android:hint="Nhập số xe" />
+
+            <TextView
+                android:id="@+id/txtTimeKhoiHanh"
+                android:layout_below="@+id/edtSoXe"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Thời gian khởi hành :" />
+
+            <com.rengwuxian.materialedittext.MaterialEditText
+                android:id="@+id/edtTimeKhoiHanh"
+                android:focusable="false"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/txtTimeKhoiHanh"
+                android:hint="Chọn thời gian khởi hành" />
+
+            <TextView
+                android:id="@+id/txtSoLuong"
+                android:layout_below="@+id/edtTimeKhoiHanh"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Số lượng" />
+
+            <com.rengwuxian.materialedittext.MaterialEditText
+                android:id="@+id/edtSoLuong"
+                android:inputType="number"
+                android:text="1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/txtSoLuong"
+                android:hint="Nhập số lượng" />
+
+
+            <Button
+                android:id="@+id/btnXuatBienLai"
+                android:text="Xuất vé"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/edtSoLuong" />
+
+        </RelativeLayout>
+
+    </ScrollView>
+
+    <LinearLayout
+        android:weightSum="2"
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="0dp">
+
+        <Button
+            android:id="@+id/btnCheck"
+            android:text="Check thiết bị"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"/>
+
+        <Button
+            android:id="@+id/btnInThu"
+            android:layout_toRightOf="@+id/btnCheck"
+            android:text="In thử"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"/>
+
+    </LinearLayout>
+
+</LinearLayout>
+
+
