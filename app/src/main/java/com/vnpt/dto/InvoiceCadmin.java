@@ -24,6 +24,23 @@ public class InvoiceCadmin implements Serializable {
 
     public String unitCurrency;
     public int PaymentStatus;
+
+    public InvoiceCadmin(String invNum, String fkey, String pattern, String serial, String cusCode, double amount, double total, String cusAddress, String cusname, String publishDate, String unitCurrency, int paymentStatus, int status) {
+        this.invNum = invNum;
+        Fkey = fkey;
+        this.pattern = pattern;
+        this.serial = serial;
+        this.cusCode = cusCode;
+        this.amount = amount;
+        Total = total;
+        this.cusAddress = cusAddress;
+        this.cusname = cusname;
+        this.publishDate = publishDate;
+        this.unitCurrency = unitCurrency;
+        PaymentStatus = paymentStatus;
+        this.status = status;
+    }
+
     public int getPaymentStatus() {
         return PaymentStatus;
     }

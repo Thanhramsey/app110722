@@ -34,6 +34,8 @@ import com.vnpt.listener.OnEventControlListener;
 import com.vnpt.printproject.PrintReceipt;
 import com.vnpt.printproject.woosim.BluetoothPrintService;
 import com.vnpt.printproject.woosim.BluetoothPrinterActivity;
+import com.vnpt.room.KhachHang;
+import com.vnpt.room.Xa;
 import com.vnpt.staffhddt.dialogs.AuthenticationForAppDialog;
 import com.vnpt.staffhddt.dialogs.ReturnReceiptInvoiceDialog;
 import com.vnpt.utils.Helper;
@@ -49,10 +51,12 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class DetailsActivity extends BaseActivity implements OnEventControlListener {
     InvoiceCadmin mHoadon;
     String methodAuthorize = "";
+    KhachHang khachHang;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,9 +67,12 @@ public class DetailsActivity extends BaseActivity implements OnEventControlListe
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         Bundle bundle = getIntent().getExtras();
+        Intent intent = getIntent();
         if (bundle != null)
             mHoadon = (InvoiceCadmin) bundle.getSerializable(Common.KEY_DATA_ITEM_INVOICE);
-        showDetailsInvoice(mHoadon);
+            khachHang = (KhachHang) intent.getSerializableExtra("KEY_KHACHHANG");
+//        showDetailsInvoice(mHoadon);
+        showDetailsKhachHang(khachHang);
 //        showOrHidenMenuReturnInvoice(false);
     }
 
@@ -83,6 +90,15 @@ public class DetailsActivity extends BaseActivity implements OnEventControlListe
         args.putSerializable(Common.KEY_DATA_ITEM_INVOICE, invoiceCadmin);
         fragment.setArguments(args);
         setFragmentContent(fragment, DetailsActivityFragment.TAG, R.id.root_layout);
+
+    }
+    void showDetailsKhachHang(KhachHang khachHang) {
+        DetailsKhachHangActivityFragment fragment = new DetailsKhachHangActivityFragment();
+        Bundle args = new Bundle();
+        //mHoadon.setPaymentStatus(ConstantsApp.StatusPayment.NOT_PAYMENT);
+        args.putSerializable("KEY_DATA_KHACHHANG", khachHang);
+        fragment.setArguments(args);
+        setFragmentContent(fragment, DetailsKhachHangActivityFragment.TAG, R.id.root_layout);
 
     }
 //    //Show lại màn hình đã trả tiền

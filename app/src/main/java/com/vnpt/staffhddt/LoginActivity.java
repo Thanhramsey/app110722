@@ -51,6 +51,8 @@ import com.vnpt.retrofit.CompanyInfo;
 import com.vnpt.room.AppDataHelper;
 import com.vnpt.room.LoaiPhi;
 import com.vnpt.room.LoaiPhiDAO;
+import com.vnpt.room.Xa;
+import com.vnpt.room.XaDAO;
 import com.vnpt.utils.DateTimeUtil;
 import com.vnpt.utils.DialogUtils;
 import com.vnpt.utils.StoreSharePreferences;
@@ -110,6 +112,7 @@ public class LoginActivity extends BaseActivity implements OnEventControlListene
     private LinearLayout emailLoginForm;
     int postionSelectedOutlet = 0;
     private ArrayList<Outlet> mArrOutlet;
+    private Intent intent = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -265,6 +268,7 @@ public class LoginActivity extends BaseActivity implements OnEventControlListene
                 CompanyInfo companyInfo = response.body();
                 if (companyInfo != null) {
                     loadListFeeData(mst);
+                    loadXa();
 
                     StoreSharePreferences.getInstance(LoginActivity.this).saveStringPreferences(Common.KEY_COMPANY_NAME, companyInfo.getNAME());
                     StoreSharePreferences.getInstance(LoginActivity.this).saveStringPreferences(Common.KEY_COMPANY_URL, companyInfo.getURL());
@@ -305,6 +309,65 @@ public class LoginActivity extends BaseActivity implements OnEventControlListene
                 Toast.makeText(LoginActivity.this, "Có lỗi xảy ra !", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void loadXa() {
+        ApiClient apiClient = AppDataHelper.getApiClient();
+        apiClient.getXa().enqueue(new Callback<List<Xa>>() {
+            @Override
+            public void onResponse(Call<List<Xa>> call, Response<List<Xa>> response) {
+                //Toast.makeText(LoginActivity.this, response.toString(), Toast.LENGTH_LONG).show();
+                List<Xa> xaList = response.body();
+                new saveXaToDbTask(getApplicationContext()).execute(xaList);
+                StoreSharePreferences.getInstance(LoginActivity.this).saveIntPreferences(Common.KEY_FIRST_CONFIG, 1);
+                showProgress(false);
+            }
+
+            @Override
+            public void onFailure(Call<List<Xa>> call, Throwable t) {
+                showProgress(false);
+                Toast.makeText(LoginActivity.this, "Có lỗi xảy ra !", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private class saveXaToDbTask extends AsyncTask<List<Xa>, Void, Integer> {
+
+        private Context mContext;
+
+        public saveXaToDbTask(Context mContext) {
+            this.mContext = mContext;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Integer doInBackground(List<Xa>... lists) {
+            final XaDAO xaDAO = AppDataHelper.getAppDatabase(mContext).getXaDAO();
+            if (lists[0] != null && lists[0].size() > 0) {
+                xaDAO.cleanTable();
+                for (Xa xa : lists[0]) {
+                    xaDAO.insert(xa);
+                }
+                return lists[0].size();
+            }
+            return 0;
+        }
+
+        @Override
+        protected void onPostExecute(Integer integer) {
+            super.onPostExecute(integer);
+            Toast.makeText(mContext, "Load thành công " + integer + " xã", Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        protected void onCancelled() {
+            super.onCancelled();
+            Toast.makeText(LoginActivity.this, "Tiến trình bị huỷ !", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private class saveFeeToDbTask extends AsyncTask<List<LoaiPhi>, Void, Integer> {
@@ -777,6 +840,8 @@ public class LoginActivity extends BaseActivity implements OnEventControlListene
 
             if (success == Common.DATA_SUCCESS) {
                 new LoadAllLoaiPhiTask(getBaseContext()).execute();
+                new LoadAllXaTask(getBaseContext()).execute();
+
             } else if (success == Common.DATA_INVALIDATE) {
                 ToastMessageUtil.showToastShort(LoginActivity.this, getString(R.string.action_sign_in_failed_account));
             } else {
@@ -818,7 +883,7 @@ public class LoginActivity extends BaseActivity implements OnEventControlListene
             showProgress(false);
 //            StoreSharePreferences.getInstance(LoginActivity.this).saveIntPreferences(Common.KEY_FROM_WHICH_SCREEN, Common.STATUS_NOT_PAYMENT);
             int printer = StoreSharePreferences.getInstance(LoginActivity.this).loadIntegerSavedPreferences(Common.KEY_PRINTER);
-            Intent intent = null;
+//            Intent intent = null;
             if (printer == Common.PRINT_ER_58) {
                 intent = new Intent(LoginActivity.this, MainEr58AiActivity.class);
             } else {
@@ -828,6 +893,51 @@ public class LoginActivity extends BaseActivity implements OnEventControlListene
 //            bundle.putInt(Common.KEY_FROM_WHICH_SCREEN, StoreSharePreferences.getInstance(LoginActivity.this).loadIntegerSavedPreferences(Common.KEY_COMPANY_STATUS));
 //            intent.putExtra("", bundle);
             intent.putExtra("KEY_LIST_FEE", (Serializable) loaiPhis);
+//            startActivity(intent);
+//            finish();
+        }
+
+        @Override
+        protected void onCancelled() {
+            super.onCancelled();
+            showProgress(false);
+            Toast.makeText(mContext, "Tiến trình bị huỷ ", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private class LoadAllXaTask extends AsyncTask<Void, Void, List<Xa>> {
+
+        private Context mContext;
+
+        public LoadAllXaTask(Context mContext) {
+            this.mContext = mContext;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            showProgress(true);
+        }
+
+        @Override
+        protected List<Xa> doInBackground(Void... voids) {
+            XaDAO xaDAO = AppDataHelper.getAppDatabase(mContext).getXaDAO();
+            return xaDAO.getAllXa();
+        }
+
+        @Override
+        protected void onPostExecute(List<Xa> xas) {
+            super.onPostExecute(xas);
+            showProgress(false);
+//            StoreSharePreferences.getInstance(LoginActivity.this).saveIntPreferences(Common.KEY_FROM_WHICH_SCREEN, Common.STATUS_NOT_PAYMENT);
+//            int printer = StoreSharePreferences.getInstance(LoginActivity.this).loadIntegerSavedPreferences(Common.KEY_PRINTER);
+//            Intent intent = null;
+//            if (printer == Common.PRINT_ER_58) {
+//                intent = new Intent(LoginActivity.this, MainEr58AiActivity.class);
+//            } else {
+//                intent = new Intent(LoginActivity.this, MainPos58Activity.class);
+//            }
+            intent.putExtra("KEY_XA", (Serializable) xas);
             startActivity(intent);
             finish();
         }

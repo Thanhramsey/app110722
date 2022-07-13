@@ -54,7 +54,7 @@ import java.util.Date;
  */
 public class DetailsActivityFragment extends BaseFragment implements View.OnClickListener, OnEventControlListener {
     public static String TAG = DetailsActivityFragment.class.getName();
-    InvoiceCadmin mHoaDon;
+    InvoiceCadmin mHoaDon ;
     TextView txtName, txtPhone,  txtAddress, txtNumberInvoice;
     Button btnCollectingMoney, btnViewInvoicePrevious, btnPrintInvoiceNotification;
     OnEventControlListener mListener;
@@ -246,6 +246,7 @@ public class DetailsActivityFragment extends BaseFragment implements View.OnClic
      */
     @Override
     protected void setValueForMembers() {
+        mHoaDon = new InvoiceCadmin("hihi","hihi","hihi","hihi","hihi",1.2,1.2,"hihi","hihi","hihi","hihi",1,1);
         String tokenInvoice = mHoaDon.getPattern()+";"+mHoaDon.getSerial()+";"+mHoaDon.getInvNum();
         String fkey = mHoaDon.getFkey();
         getDataDetailInvoice(fkey);

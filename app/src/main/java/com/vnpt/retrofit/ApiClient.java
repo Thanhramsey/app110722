@@ -1,6 +1,8 @@
 package com.vnpt.retrofit;
 
+import com.vnpt.room.KhachHang;
 import com.vnpt.room.LoaiPhi;
+import com.vnpt.room.Xa;
 
 import java.util.List;
 
@@ -15,4 +17,13 @@ public interface ApiClient {
 
     @GET("xem/getthongtintk")
     Call<CompanyInfo> getCompanyInfo(@Query("mst") String mst);
+
+    @GET("/xem/getthongtinxa")
+    Call<List<Xa>> getXa();
+
+    @GET("/xem/GetThongTinPhuong")
+    Call<List<Xa>> getPhuong(@Query("xaid") Integer xaid);
+
+    @GET("/xem/GetThongTinXaPhuong")
+    Call<List<KhachHang>> getKhachHangs(@Query("xaid") Integer xaid);
 }
