@@ -45,7 +45,7 @@
                     android:title="In vé mệnh giá"/>
                 <item android:id="@+id/nav_vexe"
                     android:icon="@drawable/ic_print"
-                    android:title="In vé gửi xe"/>
+                    android:title="In vé thu tiền rác"/>
                 <item android:id="@+id/nav_vexekhach"
                     android:icon="@drawable/ic_print"
                     android:title="In vé xe"/>

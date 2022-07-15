@@ -13,7 +13,7 @@
         android:textStyle="bold"
         android:layout_centerHorizontal="true"
         android:textColor="@android:color/holo_red_light"
-        android:text="Màn hình demo"
+        android:text="Màn hình in vé thu tiền rác"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
@@ -30,15 +30,17 @@
     <Spinner
         android:id="@+id/spMenhGia"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="60dp"
         android:layout_below="@+id/txtInVeGop"
-        android:spinnerMode="dropdown" />
+        android:spinnerMode="dropdown"
+        style="@style/spinner_style"/>
 
     <Spinner
         android:id="@+id/spPhuong"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/spMenhGia" />
+        android:layout_height="60dp"
+        android:layout_below="@+id/spMenhGia"
+        style="@style/spinner_style"/>
 
     <ListView
         android:id="@+id/listproduct"

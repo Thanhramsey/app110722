@@ -1,10 +1,16 @@
 package com.vnpt.staffhddt;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
@@ -32,6 +38,7 @@ import com.vnpt.dto.ItemAuthorizeForApp;
 import com.vnpt.dto.MethodConfirm;
 import com.vnpt.listener.OnEventControlListener;
 import com.vnpt.printproject.PrintReceipt;
+import com.vnpt.printproject.pos58bus.BluetoothService;
 import com.vnpt.printproject.woosim.BluetoothPrintService;
 import com.vnpt.printproject.woosim.BluetoothPrinterActivity;
 import com.vnpt.room.KhachHang;
@@ -57,6 +64,25 @@ public class DetailsActivity extends BaseActivity implements OnEventControlListe
     InvoiceCadmin mHoadon;
     String methodAuthorize = "";
     KhachHang khachHang;
+    public static final String TAG = DetailsActivity.class.getName();
+    //xuat bien lai
+    public static com.vnpt.printproject.pos58bus.BluetoothService mPOSPrinter = null;
+    // Name of the connected device
+    private String mConnectedDeviceName = null;
+    // Local Bluetooth adapter
+    private BluetoothAdapter mBluetoothAdapter = null;
+    /******************************************************************************************************/
+    // Message types sent from the BluetoothService Handler
+    public static final int MESSAGE_STATE_CHANGE = 1;
+    public static final int MESSAGE_READ = 2;
+    public static final int MESSAGE_WRITE = 3;
+    public static final int MESSAGE_DEVICE_NAME = 4;
+    public static final int MESSAGE_TOAST = 5;
+    public static final int MESSAGE_CONNECTION_LOST = 6;
+    public static final int MESSAGE_UNABLE_CONNECT = 7;
+    /*******************************************************************************************************/
+    private static final int REQUEST_ENABLE_BT = 2;
+    private static final int REQUEST_CONNECT_DEVICE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,11 +95,21 @@ public class DetailsActivity extends BaseActivity implements OnEventControlListe
         Bundle bundle = getIntent().getExtras();
         Intent intent = getIntent();
         if (bundle != null)
-            mHoadon = (InvoiceCadmin) bundle.getSerializable(Common.KEY_DATA_ITEM_INVOICE);
+//            mHoadon = (InvoiceCadmin) bundle.getSerializable(Common.KEY_DATA_ITEM_INVOICE);
             khachHang = (KhachHang) intent.getSerializableExtra("KEY_KHACHHANG");
 //        showDetailsInvoice(mHoadon);
         showDetailsKhachHang(khachHang);
 //        showOrHidenMenuReturnInvoice(false);
+        //xuat bien lai
+        // Get local Bluetooth adapter
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
+        // If the adapter is null, then Bluetooth is not supported
+        if (mBluetoothAdapter == null) {
+            Toast.makeText(this, "Bluetooth is not available",
+                    Toast.LENGTH_LONG).show();
+            finish();
+        }
     }
 
     @Override
@@ -81,6 +117,79 @@ public class DetailsActivity extends BaseActivity implements OnEventControlListe
         super.onPause();
 
     }
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        // If Bluetooth is not on, request that it be enabled.
+        // setupChat() will then be called during onActivityResult
+        if (!mBluetoothAdapter.isEnabled()) {
+            Intent enableIntent = new Intent(
+                    BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
+            // Otherwise, setup the session
+        } else {
+            if (mPOSPrinter == null)
+                KeyListenerInit();
+        }
+    }
+
+    private void KeyListenerInit() {
+        mPOSPrinter = new com.vnpt.printproject.pos58bus.BluetoothService(this, mHandler);
+    }
+
+    @SuppressLint("HandlerLeak")
+    private final Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case MESSAGE_STATE_CHANGE:
+                    switch (msg.arg1) {
+                        case com.vnpt.printproject.pos58bus.BluetoothService.STATE_CONNECTED:
+                            Toast.makeText(getApplicationContext(), "Đã kết nối",
+                                    Toast.LENGTH_SHORT).show();
+                            break;
+                        case com.vnpt.printproject.pos58bus.BluetoothService.STATE_CONNECTING:
+                            Toast.makeText(getApplicationContext(), "Đang kết nối",
+                                    Toast.LENGTH_SHORT).show();
+                            break;
+                        case com.vnpt.printproject.pos58bus.BluetoothService.STATE_LISTEN:
+                        case BluetoothService.STATE_NONE:
+                            Toast.makeText(getApplicationContext(), "Đang lắng nghe",
+                                    Toast.LENGTH_SHORT).show();
+                            break;
+                    }
+                    break;
+                case MESSAGE_WRITE:
+
+                    break;
+                case MESSAGE_READ:
+
+                    break;
+                case MESSAGE_DEVICE_NAME:
+                    // save the connected device's name
+                    mConnectedDeviceName = msg.getData().getString(DEVICE_NAME);
+                    Toast.makeText(getApplicationContext(),
+                            "Đã kết nối",
+                            Toast.LENGTH_SHORT).show();
+                    break;
+                case MESSAGE_TOAST:
+                    Toast.makeText(getApplicationContext(),
+                            msg.getData().getString(TOAST), Toast.LENGTH_SHORT)
+                            .show();
+                    break;
+                case MESSAGE_CONNECTION_LOST:    //蓝牙已断开连接
+                    Toast.makeText(getApplicationContext(), "Mất kết nối thiết bị",
+                            Toast.LENGTH_SHORT).show();
+
+                    break;
+                case MESSAGE_UNABLE_CONNECT:     //无法连接设备
+                    Toast.makeText(getApplicationContext(), "Không thể kết nối với thiết bị",
+                            Toast.LENGTH_SHORT).show();
+                    break;
+            }
+        }
+    };
 
     //Show lại màn hình chưa trả tiền
     void showDetailsInvoice(InvoiceCadmin invoiceCadmin) {
@@ -244,20 +353,51 @@ public class DetailsActivity extends BaseActivity implements OnEventControlListe
         // check if the request code is same as what is passed  here it is 2
 
         switch (requestCode) {
-            case Common.REQUEST_CODE_ACTIVITY_SIGNATURE_MANUAL: {
-                if (resultCode == RESULT_OK && data != null) {
-
-                    InvoiceCadmin invoiceResult = (InvoiceCadmin) data.getSerializableExtra(Common.KEY_DATA_ITEM_INVOICE);
-                    mHoadon = invoiceResult;
-                    updateTypeCerfiticateInvoice();
-//                    showDetailsNotPayment();
-                    invalidateOptionsMenu();
-                    ActivityCompat.invalidateOptionsMenu(this);
-//                    Toast.makeText(this, "Cập nhật thông tin thành công!", Toast.LENGTH_LONG);
+//            case Common.REQUEST_CODE_ACTIVITY_SIGNATURE_MANUAL: {
+//                if (resultCode == RESULT_OK && data != null) {
+//
+//                    InvoiceCadmin invoiceResult = (InvoiceCadmin) data.getSerializableExtra(Common.KEY_DATA_ITEM_INVOICE);
+//                    mHoadon = invoiceResult;
+//                    updateTypeCerfiticateInvoice();
+////                    showDetailsNotPayment();
+//                    invalidateOptionsMenu();
+//                    ActivityCompat.invalidateOptionsMenu(this);
+////                    Toast.makeText(this, "Cập nhật thông tin thành công!", Toast.LENGTH_LONG);
+//                }
+//                break;
+//            }
+            case REQUEST_CONNECT_DEVICE:{
+                // When DeviceListActivity returns with a device to connect
+                if (resultCode == Activity.RESULT_OK) {
+                    // Get the device MAC address
+                    String address = data.getExtras().getString(
+                            com.vnpt.printproject.pos58bus.DeviceListActivity.EXTRA_DEVICE_ADDRESS);
+                    // Get the BLuetoothDevice object
+                    if (BluetoothAdapter.checkBluetoothAddress(address)) {
+                        BluetoothDevice device = mBluetoothAdapter
+                                .getRemoteDevice(address);
+                        // Attempt to connect to the device
+                        mPOSPrinter.connect(device);
+                    }
+                }
+                break;
+            }
+            case REQUEST_ENABLE_BT:{
+                // When the request to enable Bluetooth returns
+                if (resultCode == Activity.RESULT_OK) {
+                    // Bluetooth is now enabled, so set up a session
+                    KeyListenerInit();
+                } else {
+                    // User did not enable Bluetooth or an error occured
+                    Log.d(TAG, "BT not enabled");
+                    Toast.makeText(this, R.string.bt_not_enabled_leaving,
+                            Toast.LENGTH_SHORT).show();
+                    finish();
                 }
                 break;
             }
         }
+
 //        super.onActivityResult(requestCode, resultCode, data);
     }
 

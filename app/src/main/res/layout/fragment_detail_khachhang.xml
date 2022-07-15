@@ -1,21 +1,21 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/layout_frament_xuatvegopdiachi"
+    android:id="@+id/layout_frament_detaikhachhang"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="10dp"
-    tools:context="com.vnpt.staffhddt.er58.XuatVeGopFragment">
+    tools:context="com.vnpt.staffhddt.er58.XuatVeGopDiaChiFragment">
 
 
-<!--    <com.rengwuxian.materialedittext.MaterialEditText-->
-<!--        android:id="@+id/edtSoLuongThang2"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_below="@+id/txtSoLuongThang"-->
-<!--        android:hint="Nhập số lượng Tháng"-->
-<!--        android:inputType="number"-->
-<!--        android:text="1" />-->
+    <!--    <com.rengwuxian.materialedittext.MaterialEditText-->
+    <!--        android:id="@+id/edtSoLuongThang2"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:layout_below="@+id/txtSoLuongThang"-->
+    <!--        android:hint="Nhập số lượng Tháng"-->
+    <!--        android:inputType="number"-->
+    <!--        android:text="1" />-->
 
     <TextView
         android:id="@+id/txtInVeGop"
@@ -23,37 +23,13 @@
         android:textStyle="bold"
         android:layout_centerHorizontal="true"
         android:textColor="@android:color/holo_red_light"
-        android:text="Màn hình in vé gộp có tên, địa chỉ"
+        android:text="Màn hình in thu tiền"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
     <TextView
-        android:id="@+id/txtCompanyInfo"
-        android:layout_below="@+id/txtInVeGop"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        android:textColor="@android:color/holo_blue_light"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        tools:text="Cong ty A SaMa" />
-
-    <TextView
-        android:layout_below="@+id/txtCompanyInfo"
-        android:layout_marginTop="10dp"
-        android:id="@+id/txtMenhGia"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Mệnh giá:" />
-
-    <Spinner
-        android:id="@+id/spMenhGia"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/txtMenhGia" />
-
-    <TextView
         android:id="@+id/txtTenKhachHang"
-        android:layout_below="@+id/spMenhGia"
+        android:layout_below="@+id/txtInVeGop"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Tên khách hàng" />
@@ -75,43 +51,36 @@
 
     <com.rengwuxian.materialedittext.MaterialEditText
         android:id="@+id/edtDiaChi"
-        android:inputType="text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/txtDiaChi"
-        android:hint="Nhập địa chỉ" />
-
-<!--    <TextView-->
-<!--        android:id="@+id/txtSoLuong"-->
-<!--        android:layout_below="@+id/edtDiaChi"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:text="Số lượng" />-->
-
-<!--    <com.rengwuxian.materialedittext.MaterialEditText-->
-<!--        android:id="@+id/edtSoLuong"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_below="@+id/txtSoLuong"-->
-<!--        android:hint="Nhập số lượng"-->
-<!--        android:inputType="number"-->
-<!--        android:text="1" />-->
-
-
-<!--    <EditText-->
-<!--        android:id="@+id/tuThang"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_below="@+id/edtSoLuongThang"-->
-<!--        android:hint="Từ Tháng" />-->
+        android:hint="Nhập địa chỉ"
+        android:inputType="text" />
 
     <TextView
+        android:id="@+id/txtMenhGia"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_below="@+id/edtDiaChi"
+        android:layout_marginTop="10dp"
+        android:text="Mệnh giá:" />
+
+    <com.rengwuxian.materialedittext.MaterialEditText
+        android:id="@+id/edtMenhGia"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/txtMenhGia"
+        android:hint="Nhập mệnh giá"
+        android:inputType="text" />
+
+    <TextView
+        android:layout_below="@+id/edtMenhGia"
         android:layout_marginTop="10dp"
         android:id="@+id/txtTuThang"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Từ tháng:" />
+
     <Spinner
         android:id="@+id/tuThang"
         android:layout_width="match_parent"
@@ -139,12 +108,12 @@
         android:layout_below="@+id/txtDenThang"
         android:spinnerMode="dropdown" />
 
-<!--    <EditText-->
-<!--        android:id="@+id/denThang"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_below="@+id/tuNam"-->
-<!--        android:hint="Đến tháng" />-->
+    <!--    <EditText-->
+    <!--        android:id="@+id/denThang"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:layout_below="@+id/tuNam"-->
+    <!--        android:hint="Đến tháng" />-->
 
     <EditText
         android:id="@+id/denNam"

@@ -47,6 +47,7 @@ import com.vnpt.controller.UserController;
 import com.vnpt.dto.BienLai;
 import com.vnpt.dto.InvoiceCadmin;
 import com.vnpt.dto.InvoiceHDDTDetails;
+import com.vnpt.dto.InvoiceTrG;
 import com.vnpt.dto.ProductInvoiceDetails;
 import com.vnpt.listener.OnEventControlListener;
 import com.vnpt.printproject.pos58bus.command.sdk.Command;
@@ -57,6 +58,7 @@ import com.vnpt.room.LoaiPhi;
 import com.vnpt.staffhddt.er58.XuatVeGopFragment;
 import com.vnpt.staffhddt.er58.XuatVeMenhGiaFragment;
 import com.vnpt.staffhddt.fragment.BaseFragment;
+import com.vnpt.staffhddt.pos58.XuatVeGopDiaChiPos58Fragment;
 import com.vnpt.staffhddt.pos58.XuatVeMenhGiaPos58Fragment;
 import com.vnpt.utils.DialogUtils;
 import com.vnpt.utils.Helper;
@@ -67,6 +69,7 @@ import com.vnpt.webservice.AppServices;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -76,20 +79,24 @@ import java.util.concurrent.TimeUnit;
  */
 public class DetailsKhachHangActivityFragment extends BaseFragment implements View.OnClickListener, OnEventControlListener {
     private static final int REQUEST_BLUE_ADMIN = 888;
-    Spinner spMenhGia;
-    MaterialEditText edtSoLuong;
+    Spinner spMenhGia,tuThang,denThang;
+    MaterialEditText edtSoLuong, edtDiaChi, edtTenKhachHang, edtSoLuongThang, edtMenhgia;
+    EditText tuNam,denNam;
     Button btnXuatBL, btnInThu, btnCheckTB;
     TextView txtCompanyInfo;
     private AwesomeProgressDialog dg;
     StoreSharePreferences preferences = null;
 
     List<LoaiPhi> loaiPhiList;
-    LoaiPhi loaiPhi = null;
+    LoaiPhi loaiPhi = null;List<Integer> listThang=new ArrayList<>();
+
+    int tuThangVal,denThangVal ;
+    KhachHang khachHang;
+
 
     private DetailsKhachHangActivityFragment.GetInvTask getInvTask = null;
 
     public static String TAG = DetailsKhachHangActivityFragment.class.getName();
-
 
     private static final String[] PRICES = new String[]{
             "10.000"
@@ -104,9 +111,13 @@ public class DetailsKhachHangActivityFragment extends BaseFragment implements Vi
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View layout = inflater.inflate(R.layout.fragment_xuat_menh_gia, container, false);
+        View layout = inflater.inflate(R.layout.fragment_detail_khachhang, container, false);
+        Bundle args = getArguments();
+        if (args != null) {
+            khachHang = (KhachHang) args.getSerializable("KEY_DATA_KHACHHANG");
+        }
 
-        setupUI(layout.findViewById(R.id.layout_frament_xuatvemenhgia));
+        setupUI(layout.findViewById(R.id.layout_frament_detaikhachhang));
         init(layout);
 
         setEventForMembers();
@@ -120,19 +131,40 @@ public class DetailsKhachHangActivityFragment extends BaseFragment implements Vi
 
     @Override
     protected void init(View layout) {
-        spMenhGia = layout.findViewById(R.id.spMenhGia);
-        edtSoLuong = layout.findViewById(R.id.edtSoLuong);
+//        spMenhGia = layout.findViewById(R.id.spMenhGia);
+        tuThang = layout.findViewById(R.id.tuThang);
+        denThang= layout.findViewById(R.id.denThang);
+//        edtSoLuong = layout.findViewById(R.id.edtSoLuong);
+        edtSoLuongThang = layout.findViewById(R.id.edtSoLuongThang);
+
+        edtTenKhachHang = layout.findViewById(R.id.edtTenKhachHang);
+        edtDiaChi = layout.findViewById(R.id.edtDiaChi);
+        edtMenhgia = layout.findViewById(R.id.edtMenhGia);
+
+//        tuThang = layout.findViewById(R.id.tuThang);
+        tuNam = layout.findViewById(R.id.tuNam);
+//        denThang = layout.findViewById(R.id.denThang);
+        denNam = layout.findViewById(R.id.denNam);
+
         btnXuatBL = layout.findViewById(R.id.btnXuatBienLai);
         btnInThu = layout.findViewById(R.id.btnInThu);
         btnCheckTB = layout.findViewById(R.id.btnCheck);
-        txtCompanyInfo = layout.findViewById(R.id.txtCompanyInfo);
+//        txtCompanyInfo = layout.findViewById(R.id.txtCompanyInfo);
+
+        tuNam.setText(String.valueOf(Calendar.getInstance().get(Calendar.YEAR)));
+        denNam.setText(String.valueOf(Calendar.getInstance().get(Calendar.YEAR)));
+//        tuNam.setEnabled(false);
+//        denNam.setEnabled(false);
+        tuNam.setVisibility(View.GONE);
+        denNam.setVisibility(View.GONE);
+
     }
 
     @Override
     protected void setValueForMembers() {
         String name = StoreSharePreferences.getInstance(getContext()).loadStringSavedPreferences(Common.KEY_COMPANY_NAME);
         String mst = StoreSharePreferences.getInstance(getContext()).loadStringSavedPreferences(Common.KEY_MST);
-        txtCompanyInfo.setText(String.format("%s - MST: %s", name, mst));
+//        txtCompanyInfo.setText(String.format("%s - MST: %s", name, mst));
 
         type = getArguments().getInt(Common.KEY_COMPANY_TYPE);
 
@@ -140,6 +172,12 @@ public class DetailsKhachHangActivityFragment extends BaseFragment implements Vi
             btnXuatBL.setText(R.string.xuat_ve);
         } else {
             btnXuatBL.setText(R.string.xuat_bien_lai);
+        }
+
+        if(khachHang != null){
+            edtTenKhachHang.setText(khachHang.getNAME()!= null ? khachHang.getNAME() :"");
+            edtDiaChi.setText(khachHang.getDIACHI()!=null ? khachHang.getDIACHI():"");
+            edtMenhgia.setText(khachHang.getSOTIEN() != null ? String.valueOf(khachHang.getSOTIEN()*1000) : "");
         }
     }
 
@@ -149,16 +187,45 @@ public class DetailsKhachHangActivityFragment extends BaseFragment implements Vi
         btnInThu.setOnClickListener(this);
         btnCheckTB.setOnClickListener(this);
 
-        spMenhGia.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//        spMenhGia.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//            @Override
+//            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+//                loaiPhi = loaiPhiList.get(i);
+////                Toast.makeText(getContext(), loaiPhi.getPATTERN(), Toast.LENGTH_SHORT).show();
+//            }
+//
+//            @Override
+//            public void onNothingSelected(AdapterView<?> adapterView) {
+//                Toast.makeText(getContext(), "Vui lòng chọn ít nhất một loại phí", Toast.LENGTH_SHORT).show();
+//            }
+//        });
+
+
+        tuThang.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-//                loaiPhi = loaiPhiList.get(i);
+                tuThangVal = listThang.get(i);
+                edtSoLuongThang.setText(String.valueOf(denThangVal-tuThangVal +1 ));
 //                Toast.makeText(getContext(), loaiPhi.getPATTERN(), Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
-                Toast.makeText(getContext(), "Vui lòng chọn ít nhất một loại phí", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Vui lòng chọn tháng", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        denThang.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                denThangVal = listThang.get(i);
+                edtSoLuongThang.setText(String.valueOf(denThangVal-tuThangVal +1 ));
+//                Toast.makeText(getContext(), loaiPhi.getPATTERN(), Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+                Toast.makeText(getContext(), "Vui lòng chọn tháng", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -176,82 +243,117 @@ public class DetailsKhachHangActivityFragment extends BaseFragment implements Vi
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         Intent intent = getActivity().getIntent();
-        if (intent != null) {
-            loaiPhiList = (List<LoaiPhi>) intent.getSerializableExtra("KEY_LIST_FEE");
-            if (loaiPhiList != null && loaiPhiList.size() > 0) {
-                ArrayAdapter<LoaiPhi> adapter = new ArrayAdapter<LoaiPhi>(getContext(),
-                        android.R.layout.simple_dropdown_item_1line, loaiPhiList);
-                spMenhGia.setAdapter(adapter);
-            } else {
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(),
-                        android.R.layout.simple_dropdown_item_1line, PRICES);
-                spMenhGia.setAdapter(adapter);
-            }
-            spMenhGia.setSelection(0);
-        }
+        listThang.add(1);
+        listThang.add(2);
+        listThang.add(3);
+        listThang.add(4);
+        listThang.add(5);
+        listThang.add(6);
+        listThang.add(7);
+        listThang.add(8);
+        listThang.add(9);
+        listThang.add(10);
+        listThang.add(11);
+        listThang.add(12);
+        ArrayAdapter<Integer> adapter1 = new ArrayAdapter<Integer>(getContext(),
+                android.R.layout.simple_dropdown_item_1line,listThang );
+        tuThang.setAdapter(adapter1);
+        tuThang.setSelection(0);
+        denThang.setAdapter(adapter1);
+        denThang.setSelection(0);
+
     }
 
     private void attemptGetInv() {
         if (getInvTask != null) {
             return;
         }
-        if (mPOSPrinter.getState() != com.vnpt.printproject.pos58bus.BluetoothService.STATE_CONNECTED) {
-            Toast.makeText(getContext(), R.string.not_connected, Toast.LENGTH_SHORT)
-                    .show();
-        } else {
 
-            String num = edtSoLuong.getText().toString().trim();
+        String num = edtSoLuongThang.getText().toString().trim();
+        String diaChi = edtDiaChi.getText().toString().trim();
+        String tenKhachHang = edtTenKhachHang.getText().toString().trim();
+        String soThang = edtSoLuongThang.getText().toString().trim();
+        Integer soTien = Integer.parseInt(edtMenhgia.getText().toString());
 
-            boolean cancel = false;
-            View focusView = null;
 
-            if (TextUtils.isEmpty(num)) {
-                edtSoLuong.setError(getString(R.string.error_empty_input));
-                focusView = edtSoLuong;
-                cancel = true;
-            }
+//        String tuThangVal = tuThang.getText().toString().trim();
+        String tuNamVal = tuNam.getText().toString().trim();
+//        String denThangVal = denThang.getText().toString().trim();
+        String denNamVal = denNam.getText().toString().trim();
 
-            if (cancel) {
-                focusView.requestFocus();
-            } else {
-                showProgress(true);
-                int numOfInv = Integer.parseInt(num);
-                StringBuilder sb = new StringBuilder();
+        boolean cancel = false;
+        View focusView = null;
 
-                //lap lai so ve
-                for (int i = 1; i <= numOfInv; i++) {
-                    try {
-                        TimeUnit.MILLISECONDS.sleep(1);
-                        long currentTime = System.currentTimeMillis();
-                        String keyData = i + "_INVE" + currentTime;
-                        // mau XML o day
-                        String xmlChildData = "";
-                        if (type == Common.TYPE_VE) {
-                            xmlChildData = "<Inv><key>" + keyData + "</key><Invoice><CusCode>" + StoreSharePreferences.getInstance(getContext()).loadStringSavedPreferences(Common.KEY_USER_NAME) + "</CusCode><Buyer></Buyer><CusName></CusName><CusAddress></CusAddress><CusPhone></CusPhone><CusTaxCode></CusTaxCode><PaymentMethod>TM, CK </PaymentMethod><KindOfService></KindOfService><Products><Product><ProdName>" + loaiPhi.getNAME() + "</ProdName><ProdUnit></ProdUnit><ProdQuantity></ProdQuantity><ProdPrice>" + loaiPhi.getTOTAL() + "</ProdPrice><Amount>" + loaiPhi.getTOTAL() + "</Amount><Extra1></Extra1><Extra2></Extra2></Product></Products><Total>" + loaiPhi.getTOTAL() + "</Total><VATRate>"+
-                                    loaiPhi.getVAT_RATE() + "</VATRate><VATAmount>" + loaiPhi.getVAT_AMOUNT() + "</VATAmount><Amount>" + loaiPhi.getAMOUNT() + "</Amount><AmountInWords>"+ StringBienLai.docSo(loaiPhi.getAMOUNT()) +"</AmountInWords><Extra></Extra></Invoice></Inv>";
-                        } else {
-                            xmlChildData = "<Inv><key>" + keyData + "</key><Invoice><CusCode><![CDATA[" + keyData + "]]></CusCode><CusName><![CDATA[" + StoreSharePreferences.getInstance(getContext()).loadStringSavedPreferences(Common.KEY_USER_NAME) + "]]></CusName><CusAddress><![CDATA[]]></CusAddress><CusPhone></CusPhone><CusTaxCode></CusTaxCode><PaymentMethod><![CDATA[]]></PaymentMethod><Products><Product><Code><![CDATA[]]></Code><ProdName>"+loaiPhi.getNAME()+"</ProdName><ProdUnit>Lần</ProdUnit><ProdQuantity>1</ProdQuantity><ProdPrice>"+loaiPhi.getAMOUNT()+"</ProdPrice><Amount>1</Amount></Product></Products><KindOfService><![CDATA[]]></KindOfService><Total>"+loaiPhi.getTOTAL()+"</Total><Amount>"+loaiPhi.getAMOUNT()+"</Amount><AmountInWords>"+StringBienLai.docSo(loaiPhi.getAMOUNT())+"</AmountInWords></Invoice></Inv>";
-                        }
-                        /////////////////////////
-                        sb.append(xmlChildData);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                String xmlData = "<Invoices>" + sb.toString() + "</Invoices>";
-
-                getInvTask = new DetailsKhachHangActivityFragment.GetInvTask(
-                        StoreSharePreferences.getInstance(getContext()).loadStringSavedPreferences(Common.KEY_USER_NAME),
-                        StoreSharePreferences.getInstance(getContext()).loadStringSavedPreferences(Common.KEY_USER_PASS),
-                        loaiPhi.getPATTERN(),
-                        loaiPhi.getSERIAL(),
-                        0,
-                        xmlData);
-                getInvTask.execute((Void) null);
-            }
+        if (TextUtils.isEmpty(edtSoLuongThang.getText().toString().trim())) {
+            edtSoLuongThang.setError(getString(R.string.error_empty_input));
+            focusView = edtSoLuongThang;
+            cancel = true;
+        } else if(TextUtils.isEmpty(diaChi)){
+            edtDiaChi.setError(getString(R.string.error_empty_input));
+            focusView = edtDiaChi;
+            cancel = true;
+        }else if(TextUtils.isEmpty(tenKhachHang)){
+            edtTenKhachHang.setError(getString(R.string.error_empty_input));
+            focusView = edtTenKhachHang;
+            cancel = true;
+        }else if(TextUtils.isEmpty(soThang)){
+            edtSoLuongThang.setError(getString(R.string.error_empty_input));
+            focusView = edtSoLuongThang;
+            cancel = true;
+        }else if(TextUtils.isEmpty(tuNamVal)){
+            tuNam.setError(getString(R.string.error_empty_input));
+            focusView = tuNam;
+            cancel = true;
+        }else if(TextUtils.isEmpty(denNamVal)){
+            denNam.setError(getString(R.string.error_empty_input));
+            focusView = denNam;
+            cancel = true;
+        }else if(Integer.valueOf(edtSoLuongThang.getText().toString().trim()) < 0){
+            edtSoLuongThang.setError("Vui lòng chọn từ tháng nhỏ hơn đến tháng");
+            focusView = edtSoLuongThang;
+            cancel = true;
         }
 
+
+        if (cancel) {
+            focusView.requestFocus();
+        } else {
+            showProgress(true);
+            int numOfInv = Integer.parseInt(num);
+            StringBuilder sb = new StringBuilder();
+
+            //lap lai so ve
+            for (int i = 1; i <= numOfInv; i++) {
+                try {
+                    TimeUnit.MILLISECONDS.sleep(1);
+                    long currentTime = System.currentTimeMillis();
+                    String keyData = i + "_INVE" + currentTime;
+                    // mau XML o day
+                    String xmlChildData = "";
+                    if (type == Common.TYPE_VE) {
+                        xmlChildData = "<Inv><key>" + keyData + "</key><Invoice><CusCode>" + StoreSharePreferences.getInstance(getContext()).loadStringSavedPreferences(Common.KEY_USER_NAME) + "</CusCode><Buyer>"+ tenKhachHang +"</Buyer><CusName></CusName><CusAddress>"+ diaChi +"</CusAddress><CusPhone></CusPhone><CusTaxCode></CusTaxCode><PaymentMethod>TM, CK </PaymentMethod><KindOfService></KindOfService><Extra>"+ soThang +"</Extra><Extra1>"+ tuThangVal +"</Extra1><Extra2>"+ tuNamVal +"</Extra2><Extra3>"+ denThangVal +"</Extra3><Extra4>"+ denNamVal +"</Extra4><Products><Product><ProdName>" + loaiPhi.getNAME() + "</ProdName><ProdUnit></ProdUnit><ProdQuantity></ProdQuantity><ProdPrice>" + loaiPhi.getTOTAL() + "</ProdPrice><Total>" + loaiPhi.getTOTAL() + "</Total><Extra1></Extra1><Extra2></Extra2></Product></Products><Total>" + loaiPhi.getTOTAL() + "</Total><VATRate>"+
+                                loaiPhi.getVAT_RATE() + "</VATRate><VATAmount>" + loaiPhi.getVAT_AMOUNT() + "</VATAmount><Amount>" + loaiPhi.getAMOUNT() + "</Amount><AmountInWords>"+ StringBienLai.docSo(loaiPhi.getAMOUNT()) +"</AmountInWords></Invoice></Inv>";
+                    } else {
+                        xmlChildData = "<Inv><key>" + keyData + "</key><Invoice><CusCode><![CDATA[" + keyData + "]]></CusCode><CusName><![CDATA[" + StoreSharePreferences.getInstance(getContext()).loadStringSavedPreferences(Common.KEY_USER_NAME) + "]]></CusName><CusAddress><![CDATA[]]></CusAddress><CusPhone></CusPhone><CusTaxCode></CusTaxCode><PaymentMethod><![CDATA[]]></PaymentMethod><Products><Product><Code><![CDATA[]]></Code><ProdName>"+loaiPhi.getNAME()+"</ProdName><ProdUnit>Lần</ProdUnit><ProdQuantity>1</ProdQuantity><ProdPrice>"+loaiPhi.getAMOUNT()+"</ProdPrice><Amount>1</Amount></Product></Products><KindOfService><![CDATA[]]></KindOfService><Total>"+loaiPhi.getTOTAL()+"</Total><Amount>"+loaiPhi.getAMOUNT()+"</Amount><AmountInWords>"+StringBienLai.docSo(loaiPhi.getAMOUNT())+"</AmountInWords></Invoice></Inv>";
+                    }
+                    /////////////////////////
+                    sb.append(xmlChildData);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            String xmlData = "<Invoices>" + sb.toString() + "</Invoices>";
+
+            getInvTask = new DetailsKhachHangActivityFragment.GetInvTask(
+                    StoreSharePreferences.getInstance(getContext()).loadStringSavedPreferences(Common.KEY_USER_NAME),
+                    StoreSharePreferences.getInstance(getContext()).loadStringSavedPreferences(Common.KEY_USER_PASS),
+                    loaiPhi.getPATTERN(),
+                    loaiPhi.getSERIAL(),
+                    0,
+                    xmlData);
+            getInvTask.execute((Void) null);
+        }
     }
 
     private void setupUI(View view) {
@@ -342,12 +444,8 @@ public class DetailsKhachHangActivityFragment extends BaseFragment implements Vi
             if (!s.split(":")[0].equals("ERR")) {
 
                 String[] listResults = s.substring(s.lastIndexOf("-") + 1).split(",");
-                // AppServices appServices = new AppServices(getActivity());
-                //  String result = appServices.downloadInvFkeyNoPay();
 
-                for (String inv : listResults) {
-                    printInvoice(inv);
-                }
+                printInvoice(listResults);
             } else {
                 Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show();
             }
@@ -393,16 +491,30 @@ public class DetailsKhachHangActivityFragment extends BaseFragment implements Vi
 
     }
 
-    public void printInvoice(String inv) {
+    public void printInvoice(String[] list) {
 
-        String[] soBL = inv.split("_");
+        float price = loaiPhi.getAMOUNT() * (list.length);
+        String firstIdx = list[0].split("_")[2];
+        String lastIndx = list[list.length - 1].split("_")[2];
+
+        int soBL = list.length;
         BienLai bienLai = new BienLai();
         bienLai.setMoTa(loaiPhi.getNAME());
-        bienLai.setGiaTien(loaiPhi.getAMOUNT());
+        bienLai.setGiaTien(price);
         bienLai.setMau(loaiPhi.getPATTERN());
-        bienLai.setSo(soBL[2].trim());
+        bienLai.setSo(firstIdx + " -> " + lastIndx);
         bienLai.setKyHieu(loaiPhi.getSERIAL());
         bienLai.setPortal(StoreSharePreferences.getInstance(getContext()).loadStringSavedPreferences(Common.KEY_COMPANY_PORTAL));
+
+        byte reset[] = {0x1b, 0x40};
+        byte lineFeed[] = {0x00, 0x0A};
+        // Command -- Font Size, Alignment
+        byte normalSize[] = {0x1D, 0x21, 0x00};
+        byte dWidthSize[] = {0x1D, 0x21, 0x10};
+        byte dHeightSize[] = {0x1D, 0x21, 0x01};
+        byte rightAlign[] = {0x1B, 0x61, 0x02};
+        byte centerAlign[] = {0x1B, 0x61, 0x01};
+        byte leftAlign[] = {0x1B, 0x61, 0x00};
 
         String date = new SimpleDateFormat("dd/MM/yyyy HH:mm").format(new Date());
 
@@ -416,73 +528,119 @@ public class DetailsKhachHangActivityFragment extends BaseFragment implements Vi
 //        NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(currentLocale);
 
         String name = (type == Common.TYPE_VE) ? "VÉ ĐIỆN TỬ" :  "BIÊN LAI ĐIỆN TỬ";
-        String search_des = (type == Common.TYPE_VE) ? "Để tra cứu vé gốc mời truy cập vào link : " : "Để tra cứu biên lai gốc kính mời truy cập vào link : ";
 
 //        String html = "<html>\n" +
 //                "                <body>\n" +
 //                "                <style>\n" +
 //                "                 </style>\n" +
-//                "<div style=\"text-align:center\">"+
-//                "                   <h2 style=\\\"text-align: center;font-size: 40px\\\">"+StoreSharePreferences.getInstance(getContext()).loadStringSavedPreferences(Common.KEY_COMPANY_NAME)+"</h2s>\n" +
-//                "                       <h2 style=\\\"text-align: center;font-size: 40px\\\">MST: "+ StoreSharePreferences.getInstance(getContext()).loadStringSavedPreferences(Common.KEY_MST) +"</h2>\n" +
-//                "               <h1 style=\\\"text-align: center;font-size: 40px\\\">"+name+"</h1>\n" +
-//                "<h3 style='text-align:center;font-size: 30px'>("+loaiPhi.getNAME()+")</h3>" +
-//                // "<h3 style='text-align:right;font-size: 20px'>(BLĐT này không thay thế cho BL thu phí, lệ phí)</h3>" +
+//                "<div style=\"text-align:center;\">"+
+//                "                   <h2 style=\\\"text-align: center;font-size: 40px\\\">"+StoreSharePreferences.getInstance(getContext()).loadStringSavedPreferences(Common.KEY_COMPANY_NAME)+"</h2>\n" +
 //                "</div>"+
-//                "                \n" +"<h2 style=\\\"text-align: center;font-size: 40px\\\">Ngày: "+date+"</h2>"+
-//                "               <h2 style=\\\"text-align:right;font-size: 40px\\\">Mẫu: "+ bienLai.getMau() + "," + bienLai.getKyHieu() +"</h2>\n" +
-//                "               <h2 style=\\\"text-align:right;font-size: 40px\\\">Số vé: "+bienLai.getSo()+"</h2>\n" +
-//                "               <h2 style=\\\"text-align:right;font-size: 40px\\\">Giá: "+ Math.round(bienLai.getGiaTien()) +" VND</h2>\n" +
-//                //"                    <h2 style=\\\"text-align: right;font-size: 20px\\\">SL: "+soBL+"</h2>\n" +
-//                "<h2>("+ StringBienLai.docSo(bienLai.getGiaTien()) +")</h2>" +
-//               // "               <h1 style=\\\"text-align: center\\\">-------------------------- </h1>" +
-//              //  "<h4 style='text-align:center;font-size: 20px'>"+search_des+"</h4>" +
-//               // "<h3> Để lấy bản gốc vào "+bienLai.getPortal()+" Mã tra cứu: "+inv+"</h3>"+
+//                "<div style=\"text-align:right;\">"+
+//                "                   <h2 style=\\\"text-align: center;font-size: 40px\\\">Ký hiệu: "+bienLai.getKyHieu()+"</h2>\n" +
+//                "</div>"+
+//                "<div style=\"text-align:center;\">"+
+//                "                       <h2 style=\\\"text-align: center;font-size: 40px\\\">MST: "+ StoreSharePreferences.getInstance(getContext()).loadStringSavedPreferences(Common.KEY_MST) +
+//                "               <h1 style=\\\"text-align: center;font-size: 40px\\\">"+name+"</h1>\n" +
+//                "</div>"+
+//                "<div style=\"text-align:center;\">"+
+//                "<h3 style='text-align:center;font-size: 25px'>("+loaiPhi.getNAME()+")</h3>" +
+//                "</div>"+
+//               // "<h3 style='text-align:right;font-size: 20px'>(BLĐT này không thay thế cho BL thu phí, lệ phí)</h3>" +
+//
+//                "                \n" +"<h2 style=\\\"text-align: center;font-size: 40px\\\">Họ tên người nộp: "+edtTenKhachHang.getText().toString().trim()+"</h2>"+
+//                "               <h2 style=\\\"text-align: center;font-size: 40px\\\">Địa chỉ: "+edtDiaChi.getText().toString().trim()+"</h2>\n" +
+////                "               <h2 style=\\\"text-align:right;font-size: 40px\\\">Mẫu: "+ bienLai.getMau() +"</h2>\n" +
+////                "                   <h2 style=\\\"text-align:right;font-size: 40px\\\">Ký hiệu: "+bienLai.getKyHieu()+"</h2>\n" +
+////                "                    <h2 style=\\\"text-align:right;font-size: 40px\\\">Số vé: "+bienLai.getSo()+"</h2>\n" +
+////                "                    <h2 style=\\\"text-align: right;font-size: 40px\\\">SL: "+soBL+"</h2>\n" +
+//                "<table style=\"text-align: center;width:100%;\">\n" +
+//                "  <tr>\n" +
+//                "    <th style=\"font-size:25px;border:1px solid black;border-right:none;border-bottom:none;\">Số tháng</th>\n" +
+//                "    <th style=\"font-size:25px;border:1px solid black;border-right:none;border-bottom:none;\">Mệnh giá</th>\n" +
+//                "    <th style=\"font-size:25px;border:1px solid black;border-bottom:none;\">Tổng tiền</th>\n" +
+//                "  </tr>\n" +
+//                "  <tr>\n" +
+//                "    <td style=\"font-size:30px;border:1px solid black;border-right:none;\">"+soBL+"</th>\n" +
+//                "    <td style=\"font-size:30px;border:1px solid black;border-right:none;\">"+Math.round(loaiPhi.getAMOUNT())+"</th>\n" +
+//                "    <td style=\"font-size:30px;border:1px solid black;\">"+ Math.round(bienLai.getGiaTien()) +"</th>\n" +
+//                "  </tr>\n" +
+//                "</table>  <h1 style=\"text-align: center\">\n" +
+////                "                    <h2 style=\\\"text-align: right;font-size: 40px\\\">Số tháng đóng: "+edtSoLuongThang.getText().toString().trim()+"</h2>\n" +
+//                "                    <h3 style=\\\"text-align: right;font-size: 25px\\\">Từ tháng: "+tuThangVal+ "/"+tuNam.getText().toString().trim()+ "  Đến tháng: "+denThangVal+ "/"+denNam.getText().toString().trim()+ "  </h3>\n" +
+////                "                    <h2>Giá: "+ Math.round(bienLai.getGiaTien()) +" VND</h2>\n" +
+//                "                    <h2>("+ StringBienLai.docSo(bienLai.getGiaTien()) +")</h2>" +
+//                "<div style=\"text-align:center;\">"+
+//                "               <h2 style=\\\"text-align: center;font-size: 40px\\\">Ngày: "+date+"</h2>\n" +
+//
+//                "                    <h2 style=\\\"text-align: center;font-size: 40px\\\">Tên người thu</h2>\n" +
+//                "</div>"+
 //                "               <h1 style=\\\"text-align: center\\\"> ----------------------------- </h1>" +
-//                "                </body>\n" +
-//                "                </html>";
+//                "</body></html>";
+
 
         String html = "<html>\n" +
-                " <body>\n" +
-                " <style>\n" +
-                "  </style>\n" +
-                "<div style=\"text-align:center;font-size:26px\">"+
-                " <b>"+StoreSharePreferences.getInstance(getContext()).loadStringSavedPreferences(Common.KEY_COMPANY_NAME)+"</b> \n" +
+                "                <body>\n" +
+                "                <style>\n" +
+                "                 </style>\n" +
+                "<div style=\"text-align:center;font-size:26px;\">"+
+                "<b> "+StoreSharePreferences.getInstance(getContext()).loadStringSavedPreferences(Common.KEY_COMPANY_NAME)+" </b>\n" +
                 "</div>"+
-                "<div style=\"text-align:center;font-size:24px\">"+
-                " <b>MST: "+ StoreSharePreferences.getInstance(getContext()).loadStringSavedPreferences(Common.KEY_MST) +"</b> \n" +
+                "<div style=\"text-align:right;font-size: 20px\">"+
+                "<b>  Ký hiệu: "+bienLai.getKyHieu()+"</b>\n" +
                 "</div>"+
-                "<div style=\"text-align:center;font-size:27px\">"+
-                " <b>"+name+"</b>\n" +
+                "<div style=\"text-align:center;font-size: 25px\">"+
+                "<b>  MST: "+ StoreSharePreferences.getInstance(getContext()).loadStringSavedPreferences(Common.KEY_MST) +"</b> \n" +
                 "</div>"+
-                "<div style=\"text-align:center;font-size:26px\">"+
-                "<b>("+loaiPhi.getNAME()+")</b> "+
-                // "<h3 style='text-align:right;font-size: 20px'>(BLĐT này không thay thế cho BL thu phí, lệ phí)</h3>" +
+                "<div style=\"text-align:center;font-size: 28px\">"+
+                "<b>  "+name+"</b> \n" +
                 "</div>"+
-                "<div style=\"text-align:left;font-size:20px\">"+
-                "   <b>Ngày: "+date+"</b> "+
+                "<div style=\"text-align:center;font-size: 25px\">"+
+                "<b>("+loaiPhi.getNAME()+")</b>" +
                 "</div>"+
-                "<div style=\"text-align:left;font-size:20px\">"+
-                "  <b>Mẫu: "+ bienLai.getMau() + "," + bienLai.getKyHieu() +"</b>\n" +
+                "<div style=\"text-align:left;font-size: 23px\">"+
+                "<b> Họ tên người nộp: "+edtTenKhachHang.getText().toString().trim()+"</b> " +
                 "</div>"+
-                "<div style=\"text-align:left;font-size:20px\">"+
-                "  <b>Số vé: "+bienLai.getSo()+"</b> \n" +
+                "<div style=\"text-align:left;font-size: 23px\">"+
+                "<b> Địa chỉ: "+edtDiaChi.getText().toString().trim()+" </b>" +
                 "</div>"+
-                "<div style=\"text-align:left;font-size:23px\">"+
-                "  <b>Giá: "+ Math.round(bienLai.getGiaTien()) +" VND</b> \n" +
+                "<table style=\"text-align: center;width:100%;\">\n" +
+                "  <tr>\n" +
+                "    <th style=\"font-size:25px;border:1px solid black;border-right:none;border-bottom:none;\">Số tháng</th>\n" +
+                "    <th style=\"font-size:25px;border:1px solid black;border-right:none;border-bottom:none;\">Mệnh giá</th>\n" +
+                "    <th style=\"font-size:25px;border:1px solid black;border-bottom:none;\">Tổng tiền</th>\n" +
+                "  </tr>\n" +
+                "  <tr>\n" +
+                "    <td style=\"font-size:30px;border:1px solid black;border-right:none;\">"+soBL+"</th>\n" +
+                "    <td style=\"font-size:30px;border:1px solid black;border-right:none;\">"+Math.round(loaiPhi.getAMOUNT())+"</th>\n" +
+                "    <td style=\"font-size:30px;border:1px solid black;\">"+ Math.round(bienLai.getGiaTien()) +"</th>\n" +
+                "  </tr>\n" +
+                "</table>  \n" +
+                "<div style=\"text-align:left;font-size: 20px\">"+
+                "<b> Từ tháng: "+tuThangVal+ "/"+tuNam.getText().toString().trim()+ "  Đến tháng: "+denThangVal+ "/"+denNam.getText().toString().trim()+ " </b> " +
                 "</div>"+
-                //"                    <h2 style=\\\"text-align: right;font-size: 20px\\\">SL: "+soBL+"</h2>\n" +
-                "<div style=\"text-align:left;font-size:20px\">"+
-                "<b>("+ StringBienLai.docSo(bienLai.getGiaTien()) +") </b>" +
+                "<div style=\"text-align:left;font-size: 20px\">"+
+                "<b> ("+ StringBienLai.docSo(bienLai.getGiaTien()) +") </b> " +
                 "</div>"+
-                // "               <h1 style=\\\"text-align: center\\\">-------------------------- </h1>" +
-                //  "<h4 style='text-align:center;font-size: 20px'>"+search_des+"</h4>" +
-                // "<h3> Để lấy bản gốc vào "+bienLai.getPortal()+" Mã tra cứu: "+inv+"</h3>"+
-                "<div style=\"text-align:center\">"+
+                "<div style=\"text-align:center;font-size: 20px\">"+
+                "<b> Ngày: "+date+"</b>\n" +
+                "</div>"+
+                "<div style=\"text-align:center;font-size: 20px\">"+
+                "<b>    Tên người thu</b>\n" +
+                "</div>"+
+                "<div style=\"text-align:center;\">"+
                 " <h1 style=\\\"text-align: center\\\"> ----------------------------- </h1>" +
                 "</div>"+
-                "                </body>\n" +
-                "                </html>";
+                "</body></html>";
+
+//        StringBuilder endContent = new StringBuilder();
+
+//        for (String inv: list) {
+//            endContent.append("<h3>").append(inv).append("</h3>");
+//        }
+//
+//        html += endContent.toString() + "</body></html>";
+
         new DetailsKhachHangActivityFragment.converHTMLTask().execute(html);
 
     }
@@ -547,67 +705,120 @@ public class DetailsKhachHangActivityFragment extends BaseFragment implements Vi
     }
 
     private void Print_Test() {
+//        String msg = "<html>\n" +
+//                "                <body>\n" +
+//                "                <style>\n" +
+//                "                 </style>\n" +
+//                "<div style=\"text-align:center;font-size: 28px\">"+
+//                " <b>  BAN QUẢN LÝ CHỢ HUYỆN ĐAKĐOA</b>\n" +
+//                "</div>"+
+//                "<div style=\"text-align:right;font-size: 20px\">"+
+//                " <b> Ký hiệu: KHTK-001</b> \n" +
+//                "</div>"+
+//                "<div style=\"text-align:center;font-size: 25px\">"+
+//                "<b>MST: "+ StoreSharePreferences.getInstance(getContext()).loadStringSavedPreferences(Common.KEY_MST) +"</b> "+
+//                "</div>"+
+//                "<div style=\"text-align:center;font-size: 30px\">"+
+//                "  <b> BAN QUẢN LÝ CHỢ HUYỆN ĐAKĐOA</b>\n" +
+//                "</div>"+
+//                "<div style=\"text-align:center;font-size: 28px\">"+
+//                "<b>("+loaiPhi.getNAME()+")</b>"+
+//                "</div>"+
+//                "<div style=\"text-align:left;font-size: 23px\">"+
+//                "<b> Họ tên người nộp: "+edtTenKhachHang.getText().toString().trim()+"</b> "+
+//                "</div>"+
+//                "<div style=\"text-align:left;font-size: 23px\">"+
+//                "<b> Địa chỉ: "+edtDiaChi.getText().toString().trim()+"</b> "+
+//                "</div>"+
+//                "<table style=\"text-align: center;width:100%;\">\n" +
+//                "  <tr>\n" +
+//                "    <th style=\"font-size:25px;border:1px solid black;border-right:none;border-bottom:none;\">Số tháng</th>\n" +
+//                "    <th style=\"font-size:25px;border:1px solid black;border-right:none;border-bottom:none;\">Mệnh giá</th>\n" +
+//                "    <th style=\"font-size:25px;border:1px solid black;border-bottom:none;\">Tổng tiền</th>\n" +
+//                "  </tr>\n" +
+//                "  <tr>\n" +
+//                "    <td style=\"font-size:30px;border:1px solid black;border-right:none;\">10</th>\n" +
+//                "    <td style=\"font-size:30px;border:1px solid black;border-right:none;\">"+Math.round(loaiPhi.getAMOUNT())+"</th>\n" +
+//                "    <td style=\"font-size:30px;border:1px solid black;\">15000000</th>\n" +
+//                "  </tr>\n" +
+//                "</table> \n" +
+//                "<div style=\"text-align:left;font-size: 20px\">"+
+//                " <b> Từ tháng: "+tuThangVal+ "/"+tuNam.getText().toString().trim()+ "  Đến tháng: "+denThangVal+ "/"+denNam.getText().toString().trim()+ "</b>\n" +
+//                "</div>"+
+//                "<div style=\"text-align:left;font-size: 20px\">"+
+//                " <b>  (Một triệu năm trăm ngàn) </b>\n" +
+//                "</div>"+
+////                "                    <h2 style=\\\"text-align: right;font-size: 40px\\\">Số tháng đóng: "+edtSoLuongThang.getText().toString().trim()+"</h2>\n" +
+////                "                    <h3 style=\\\"text-align: right;font-size: 25px\\\">Từ tháng: "+tuThangVal+ "/"+tuNam.getText().toString().trim()+ "  Đến tháng: "+denThangVal+ "/"+denNam.getText().toString().trim()+ "  </h3>\n" +
+////                "                    <h2>Giá: "+ Math.round(bienLai.getGiaTien()) +" VND</h2>\n" +
+////                "                    <h2>("+ StringBienLai.docSo(bienLai.getGiaTien()) +")</h2>" +
+//                "<div style=\"text-align:center;font-size: 20px\">"+
+//                "<b>Ngày: 04-07-2020 </b>\n" +
+//                "</div>"+
+//                "<div style=\"text\"text-align:center;font-size: 20px\">"+
+//                "------------align:center;font-size: 20px\\\">\"+\n" +
+//                "                \"<b>Tên người thu</b>\"+\n" +
+//                "                \"</div>\"+\n" +
+//                "                \"<div style=------------------"+
+//                "</div>"+
+//                "</body></html>";
+
+
         String msg = "<html>\n" +
-                "<body>\n" +
-                "<style>\n" +
-                "  </style>\n" +
-                "<h1 style=\"text-align: center;font-size: 40px\">BIÊN LAI ĐIỆN TỬ</h1>\n" +
-                "<h1 style=\"text-align: left;font-size: 40px\">STT: 1</h1>\n" +
+                "                <body>\n" +
+                "                <style>\n" +
+                "                 </style>\n" +
+                "<div style=\"text-align:center;font-size:26px;\">"+
+                " <b>"+StoreSharePreferences.getInstance(getContext()).loadStringSavedPreferences(Common.KEY_COMPANY_NAME)+"</b> \n" +
+                "</div>"+
+                "<div style=\"text-align:right;font-size: 20px\">"+
+                " <b> Ký hiệu: KHTK-002</b>\n" +
+                "</div>"+
+                "<div style=\"text-align:center;font-size: 25px\">"+
+                " <b> MST: "+ StoreSharePreferences.getInstance(getContext()).loadStringSavedPreferences(Common.KEY_MST) +"</b> \n" +
+                "</div>"+
+                "<div style=\"text-align:center;font-size: 28px\">"+
+                " <b>"+StoreSharePreferences.getInstance(getContext()).loadStringSavedPreferences(Common.KEY_COMPANY_NAME)+"</b> \n" +
+                "</div>"+
+                "<div style=\"text-align:center;font-size: 26px\">"+
+                "<b>(Vé mua hàng)</b>" +
+                "</div>"+
+                "<div style=\"text-align:left;font-size: 23px\">"+
+                "<b> Họ tên người nộp: "+edtTenKhachHang.getText().toString().trim()+"</b> " +
+                "</div>"+
+                "<div style=\"text-align:left;font-size: 23px\">"+
+                "<b> Địa chỉ: "+edtDiaChi.getText().toString().trim()+"</b> " +
+                "</div>"+
                 "<table style=\"text-align: center;width:100%;\">\n" +
                 "  <tr>\n" +
-                "    <th style=\"font-size:30px\">Phí:  Biên lai in thử</th>\n" +
+                "    <th style=\"font-size:25px;border:1px solid black;border-right:none;border-bottom:none;\">Số tháng</th>\n" +
+                "    <th style=\"font-size:25px;border:1px solid black;border-right:none;border-bottom:none;\">Mệnh giá</th>\n" +
+                "    <th style=\"font-size:25px;border:1px solid black;border-bottom:none;\">Tổng tiền</th>\n" +
                 "  </tr>\n" +
-                "</table>  <h1 style=\"text-align: center\">\n" +
-                "    -----------------------------\n" +
-                "  </h1>" +
-                "\n" +
-                "</body>\n" +
-                "</html>";
-
-        String date = new SimpleDateFormat("dd/MM/yyyy HH:mm").format(new Date());
-        String html = "<html>\n" +
-                " <body>\n" +
-                "<div style=\"text-align:center;font-size:26px\">"+
-                "<b> "+StoreSharePreferences.getInstance(getContext()).loadStringSavedPreferences(Common.KEY_COMPANY_NAME)+"</b> \n" +
+                "  <tr>\n" +
+                "    <td style=\"font-size:30px;border:1px solid black;border-right:none;\">5</th>\n" +
+                "    <td style=\"font-size:30px;border:1px solid black;border-right:none;\">"+edtMenhgia.getText().toString().trim()+"</th>\n" +
+                "    <td style=\"font-size:30px;border:1px solid black;\">10000</th>\n" +
+                "  </tr>\n" +
+                "</table>  \n" +
+                "<div style=\"text-align:left;font-size: 20px\">"+
+                " <b>Từ tháng: "+tuThangVal+ "/"+tuNam.getText().toString().trim()+ "  Đến tháng: "+denThangVal+ "/"+denNam.getText().toString().trim()+ "</b>  " +
                 "</div>"+
-                "<div style=\"text-align:center;font-size:25px\">"+
-                "<b> MST: "+ StoreSharePreferences.getInstance(getContext()).loadStringSavedPreferences(Common.KEY_MST) +"</b> \n" +
+                "<div style=\"text-align:left;font-size: 20px\">"+
+                " <b>(Mười ngàn đồng) </b> " +
                 "</div>"+
-//                "<div style=\"text-align:center;;font-size:28px\">"+
-//                " <b>VÉ ĐIỆN TỬ</b>  \n" +
-//                "</div>"+
-                "<div style=\"text-align:center;font-size:24px\">"+
-                "<b>("+loaiPhi.getNAME()+")</b> "+
-                // "<h3 style='text-align:right;font-size: 20px'>(BLĐT này không thay thế cho BL thu phí, lệ phí)</h3>" +
+                "<div style=\"text-align:center;font-size: 20px\">"+
+                "<b> Ngày: 04-070-2022</b>\n" +
                 "</div>"+
-                "<div style=\"text-align:left;font-size:20px\">"+
-                "   <b>Ngày: "+date+" </b>"+
+                "<div style=\"text-align:center;font-size: 20px\">"+
+                " <b>    Tên người thu</b>\n" +
                 "</div>"+
-                "<div style=\"text-align:left;font-size:20px\">"+
-                "  <b>Mẫu: KHTK-001,100</b>\n" +
-                "</div>"+
-                "<div style=\"text-align:left;font-size:20px\">"+
-                "  <b>Số vé: 3 </b>\n" +
-                "</div>"+
-                "<div style=\"text-align:left;font-size:23px\">"+
-                "  <b>Giá: 15000 VND </b>\n" +
-                "</div>"+
-                //"                    <h2 style=\\\"text-align: right;font-size: 20px\\\">SL: "+soBL+"</h2>\n" +
-                "<div style=\"text-align:left;font-size:20px\">"+
-                "<b>(Mười lăm nghìn đồng) </b>" +
-                "</div>"+
-                // "               <h1 style=\\\"text-align: center\\\">-------------------------- </h1>" +
-                //  "<h4 style='text-align:center;font-size: 20px'>"+search_des+"</h4>" +
-                // "<h3> Để lấy bản gốc vào "+bienLai.getPortal()+" Mã tra cứu: "+inv+"</h3>"+
-                "<div style=\"text-align:center\">"+
+                "<div style=\"text-align:center;\">"+
                 " <h1 style=\\\"text-align: center\\\"> ----------------------------- </h1>" +
                 "</div>"+
-                "                </body>\n" +
-                "                </html>";
+                "</body></html>";
 
-
-
-        new DetailsKhachHangActivityFragment.converHTMLTask().execute(html);
+        new DetailsKhachHangActivityFragment.converHTMLTask().execute(msg);
     }
 
     @Override

@@ -533,6 +533,9 @@ public class XuatVeXePos58Fragment extends BaseFragment implements View.OnClickL
                 {
                     listKhachHang = new ArrayList<>();
                     for(KhachHang kh : khachHangList){
+                        if(kh.getDIACHI() == null){
+                            kh.setDIACHI(phuong.getNAME() +" - "+ xa.getNAME());
+                        }
                         listKhachHang.add(new KhachHang(kh));
                     }
                     productListViewAdapter = new ProductListViewAdapter(listKhachHang);
@@ -541,7 +544,7 @@ public class XuatVeXePos58Fragment extends BaseFragment implements View.OnClickL
                         @Override
                         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                             KhachHang khachHang = (KhachHang) productListViewAdapter.getItem(position);
-                            Toast.makeText(getContext(), khachHang.getNAME(), Toast.LENGTH_LONG).show();
+//                            Toast.makeText(getContext(), khachHang.getNAME(), Toast.LENGTH_LONG).show();
                             Intent intent = new Intent(getContext(), DetailsActivity.class);
                             intent.putExtra("KEY_KHACHHANG", khachHang);
                             startActivity(intent);
@@ -671,10 +674,10 @@ public class XuatVeXePos58Fragment extends BaseFragment implements View.OnClickL
 
             //Bind sữ liệu phần tử vào View
             KhachHang khachHang = (KhachHang) getItem(position);
-            ((TextView) viewProduct.findViewById(R.id.idproduct)).setText(String.format("ID = %d", khachHang.getID()));
+            ((TextView) viewProduct.findViewById(R.id.idproduct)).setText(String.format("STT : %d", khachHang.getID()));
             ((TextView) viewProduct.findViewById(R.id.nameproduct)).setText(String.format("Tên KH : %s", khachHang.getNAME()));
             ((TextView) viewProduct.findViewById(R.id.diachi)).setText(String.format("Địa chỉ : %s", khachHang.getDIACHI()));
-            ((TextView) viewProduct.findViewById(R.id.priceproduct)).setText(String.format("Số tiền %d", khachHang.getSOTIEN()));
+            ((TextView) viewProduct.findViewById(R.id.priceproduct)).setText(String.format("Mệnh giá %d", khachHang.getSOTIEN()*1000));
 
 
             return viewProduct;
