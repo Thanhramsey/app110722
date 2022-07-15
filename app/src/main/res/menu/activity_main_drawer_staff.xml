@@ -42,22 +42,24 @@
             <group android:checkableBehavior="single">
                 <item android:id="@+id/nav_vemenhgia"
                     android:icon="@drawable/ic_print"
-                    android:title="In vé mệnh giá"/>
+                    android:title="In vé mệnh giá"
+                    />
                 <item android:id="@+id/nav_vexe"
                     android:icon="@drawable/ic_print"
                     android:title="In vé thu tiền rác"/>
                 <item android:id="@+id/nav_vexekhach"
                     android:icon="@drawable/ic_print"
-                    android:title="In vé xe"/>
+                    android:title="In vé thu tiền rác 2"/>
                 <item android:id="@+id/nav_vegop"
                     android:icon="@drawable/ic_print"
-                    android:title="In vé gộp"/>
+                    android:title="In vé gộp" />
                 <item android:id="@+id/nav_vegopdiachi"
                     android:icon="@drawable/ic_print"
                     android:title="In vé gộp có tên, địa chỉ"/>
                 <item android:id="@+id/nav_hddt"
                     android:icon="@drawable/ic_print"
-                    android:title="In HDDT"/>
+                    android:title="In HDDT"
+                    />
                 <item
                     android:id="@+id/nav_statistics"
                     android:icon="@drawable/statistics"

@@ -74,6 +74,12 @@
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden|adjustResize" />
         <activity
+            android:name=".DetailsActivity2"
+            android:label="@string/title_activity_details"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
+        <activity
             android:name="com.vnpt.printproject.pos58bus.DeviceListActivity"
             android:label="@string/title_activity_details"
             android:screenOrientation="portrait"

@@ -103,10 +103,10 @@ public class XuatVeXeKhachFragment extends BaseFragment implements View.OnClickL
         txtCompanyInfo = layout.findViewById(R.id.txtCompanyInfo);
 
         edtSoLuong = layout.findViewById(R.id.edtSoLuong);
-        edtTuyenDuong = layout.findViewById(R.id.edtTuyenDuong);
-        edtSoGhe = layout.findViewById(R.id.edtSoGhe);
-        edtTgKhoiHanh = layout.findViewById(R.id.edtTimeKhoiHanh);
-        edtSoXe = layout.findViewById(R.id.edtSoXe);
+//        edtTuyenDuong = layout.findViewById(R.id.edtTuyenDuong);
+//        edtSoGhe = layout.findViewById(R.id.edtSoGhe);
+//        edtTgKhoiHanh = layout.findViewById(R.id.edtTimeKhoiHanh);
+//        edtSoXe = layout.findViewById(R.id.edtSoXe);
     }
 
     @Override

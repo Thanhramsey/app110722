@@ -1,30 +1,48 @@
 package com.vnpt.staffhddt;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.vnpt.common.ActionEvent;
 import com.vnpt.common.ActionEventConstant;
 import com.vnpt.common.Common;
+import com.vnpt.common.ConstantsApp;
 import com.vnpt.common.ModelEvent;
 import com.vnpt.controller.UserController;
 import com.vnpt.dto.BaseReponse;
 import com.vnpt.dto.CerfiticateItem;
+import com.vnpt.dto.InvoiceCadmin;
+import com.vnpt.dto.InvoiceHDDTDetails;
 import com.vnpt.dto.InvoiceTrG;
 import com.vnpt.dto.InvoiceUpdatePaymentedRequest;
 import com.vnpt.dto.ItemAuthorizeForApp;
 import com.vnpt.dto.MethodConfirm;
 import com.vnpt.listener.OnEventControlListener;
+import com.vnpt.printproject.PrintReceipt;
+import com.vnpt.printproject.pos58bus.BluetoothService;
+import com.vnpt.printproject.woosim.BluetoothPrintService;
+import com.vnpt.printproject.woosim.BluetoothPrinterActivity;
+import com.vnpt.room.KhachHang;
+import com.vnpt.room.Xa;
 import com.vnpt.staffhddt.dialogs.AuthenticationForAppDialog;
 import com.vnpt.staffhddt.dialogs.ReturnReceiptInvoiceDialog;
 import com.vnpt.utils.Helper;
@@ -40,10 +58,31 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
-public class DetailsActivity2 extends BaseActivity implements OnEventControlListener{
-    InvoiceTrG mHoadon;
+public class DetailsActivity2 extends BaseActivity implements OnEventControlListener {
+    InvoiceCadmin mHoadon;
     String methodAuthorize = "";
+    KhachHang khachHang;
+    public static final String TAG = DetailsActivity2.class.getName();
+    //xuat bien lai
+    public static com.vnpt.printproject.pos58bus.BluetoothService mPOSPrinter = null;
+    // Name of the connected device
+    private String mConnectedDeviceName = null;
+    // Local Bluetooth adapter
+    private BluetoothAdapter mBluetoothAdapter = null;
+    /******************************************************************************************************/
+    // Message types sent from the BluetoothService Handler
+    public static final int MESSAGE_STATE_CHANGE = 1;
+    public static final int MESSAGE_READ = 2;
+    public static final int MESSAGE_WRITE = 3;
+    public static final int MESSAGE_DEVICE_NAME = 4;
+    public static final int MESSAGE_TOAST = 5;
+    public static final int MESSAGE_CONNECTION_LOST = 6;
+    public static final int MESSAGE_UNABLE_CONNECT = 7;
+    /*******************************************************************************************************/
+    private static final int REQUEST_ENABLE_BT = 2;
+    private static final int REQUEST_CONNECT_DEVICE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,10 +93,23 @@ public class DetailsActivity2 extends BaseActivity implements OnEventControlList
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         Bundle bundle = getIntent().getExtras();
+        Intent intent = getIntent();
         if (bundle != null)
-            mHoadon = (InvoiceTrG) bundle.getSerializable(Common.KEY_DATA_ITEM_INVOICE);
-        showDetailsNotPayment();
+//            mHoadon = (InvoiceCadmin) bundle.getSerializable(Common.KEY_DATA_ITEM_INVOICE);
+            khachHang = (KhachHang) intent.getSerializableExtra("KEY_KHACHHANG");
+//        showDetailsInvoice(mHoadon);
+        showDetailsKhachHang(khachHang);
 //        showOrHidenMenuReturnInvoice(false);
+        //xuat bien lai
+        // Get local Bluetooth adapter
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
+        // If the adapter is null, then Bluetooth is not supported
+        if (mBluetoothAdapter == null) {
+            Toast.makeText(this, "Bluetooth is not available",
+                    Toast.LENGTH_LONG).show();
+            finish();
+        }
     }
 
     @Override
@@ -65,31 +117,115 @@ public class DetailsActivity2 extends BaseActivity implements OnEventControlList
         super.onPause();
 
     }
+    @Override
+    public void onStart() {
+        super.onStart();
 
+        // If Bluetooth is not on, request that it be enabled.
+        // setupChat() will then be called during onActivityResult
+        if (!mBluetoothAdapter.isEnabled()) {
+            Intent enableIntent = new Intent(
+                    BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
+            // Otherwise, setup the session
+        } else {
+            if (mPOSPrinter == null)
+                KeyListenerInit();
+        }
+    }
 
-    void showDetailsNotPayment() {
+    private void KeyListenerInit() {
+        mPOSPrinter = new com.vnpt.printproject.pos58bus.BluetoothService(this, mHandler);
+    }
+
+    @SuppressLint("HandlerLeak")
+    private final Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case MESSAGE_STATE_CHANGE:
+                    switch (msg.arg1) {
+                        case com.vnpt.printproject.pos58bus.BluetoothService.STATE_CONNECTED:
+                            Toast.makeText(getApplicationContext(), "Đã kết nối",
+                                    Toast.LENGTH_SHORT).show();
+                            break;
+                        case com.vnpt.printproject.pos58bus.BluetoothService.STATE_CONNECTING:
+                            Toast.makeText(getApplicationContext(), "Đang kết nối",
+                                    Toast.LENGTH_SHORT).show();
+                            break;
+                        case com.vnpt.printproject.pos58bus.BluetoothService.STATE_LISTEN:
+                        case BluetoothService.STATE_NONE:
+                            Toast.makeText(getApplicationContext(), "Đang lắng nghe",
+                                    Toast.LENGTH_SHORT).show();
+                            break;
+                    }
+                    break;
+                case MESSAGE_WRITE:
+
+                    break;
+                case MESSAGE_READ:
+
+                    break;
+                case MESSAGE_DEVICE_NAME:
+                    // save the connected device's name
+                    mConnectedDeviceName = msg.getData().getString(DEVICE_NAME);
+                    Toast.makeText(getApplicationContext(),
+                            "Đã kết nối",
+                            Toast.LENGTH_SHORT).show();
+                    break;
+                case MESSAGE_TOAST:
+                    Toast.makeText(getApplicationContext(),
+                            msg.getData().getString(TOAST), Toast.LENGTH_SHORT)
+                            .show();
+                    break;
+                case MESSAGE_CONNECTION_LOST:    //蓝牙已断开连接
+                    Toast.makeText(getApplicationContext(), "Mất kết nối thiết bị",
+                            Toast.LENGTH_SHORT).show();
+
+                    break;
+                case MESSAGE_UNABLE_CONNECT:     //无法连接设备
+                    Toast.makeText(getApplicationContext(), "Không thể kết nối với thiết bị",
+                            Toast.LENGTH_SHORT).show();
+                    break;
+            }
+        }
+    };
+
+    //Show lại màn hình chưa trả tiền
+    void showDetailsInvoice(InvoiceCadmin invoiceCadmin) {
         DetailsActivityFragment fragment = new DetailsActivityFragment();
         Bundle args = new Bundle();
-        args.putSerializable(Common.KEY_DATA_ITEM_INVOICE, mHoadon);
+        //mHoadon.setPaymentStatus(ConstantsApp.StatusPayment.NOT_PAYMENT);
+        args.putSerializable(Common.KEY_DATA_ITEM_INVOICE, invoiceCadmin);
         fragment.setArguments(args);
         setFragmentContent(fragment, DetailsActivityFragment.TAG, R.id.root_layout);
 
     }
+    void showDetailsKhachHang(KhachHang khachHang) {
+        DetailsKhachHangActivityFragment2 fragment = new DetailsKhachHangActivityFragment2();
+        Bundle args = new Bundle();
+        //mHoadon.setPaymentStatus(ConstantsApp.StatusPayment.NOT_PAYMENT);
+        args.putSerializable("KEY_DATA_KHACHHANG", khachHang);
+        fragment.setArguments(args);
+        setFragmentContent(fragment, DetailsKhachHangActivityFragment2.TAG, R.id.root_layout);
+
+    }
+//    //Show lại màn hình đã trả tiền
+//    void showDetailsPaymented() {
+//        DetailsActivityFragment fragment = new DetailsActivityFragment();
+//        Bundle args = new Bundle();
+//        //mHoadon.setPaymentStatus(ConstantsApp.StatusPayment.PAYMENTED);
+//        args.putSerializable(Common.KEY_DATA_ITEM_INVOICE, mHoadon);
+//        fragment.setArguments(args);
+//        setFragmentContent(fragment, DetailsActivityFragment.TAG, R.id.root_layout);
+//    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_details, menu);
-
-        MenuItem item = menu.findItem(R.id.action_view_content);
-        if(mHoadon.getStatusPaymentedMobile()==1)
-        {
-            showOrHidenMenuReturnInvoice(true,item);
-        }
-        else
-            {
-                showOrHidenMenuReturnInvoice(false,item);
-            }
+//        MenuItem item = menu.findItem(R.id.action_view_content);
+//        showOrHidenMenuReturnInvoice(false,item);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -121,21 +257,95 @@ public class DetailsActivity2 extends BaseActivity implements OnEventControlList
         itent.putExtras(args);
         startActivity(itent);
     }
+
     protected void updateTypeCerfiticateInvoice() {
         ActionEvent e = new ActionEvent();
         e.action = ActionEventConstant.ACTION_UPDATE_SIGNED_INVOICE;
         e.sender = this;
         Bundle bundle = new Bundle();
-        bundle.putInt(Common.BUNDLE_KEY_ID_INVOICE, mHoadon.getId());
+        bundle.putString(Common.BUNDLE_KEY_ID_INVOICE, mHoadon.getInvNum());
         String authorize = StoreSharePreferences.getInstance(this).loadStringSavedPreferences(Common.REFF_KEY_METHOD_AUTHORIZE_USER);
        /* String finishAuthorize = authorize +"-"+Common.TYPE_VIEW_CERFITICATE_MANUAL;
         StoreSharePreferences.getInstance(this).saveStringPreferences(Common.REFF_KEY_METHOD_AUTHORIZE_USER,finishAuthorize);*/
-        bundle.putInt(Common.KEY_STATUS_PAYMENT_INVOICE,1);
-        bundle.putString(Common.KEY_PATH_CERTIFICATE_USER_MOBILE, mHoadon.getPathImgSignedMobile());
-        bundle.putString(Common.KEY_PATH_CERTIFICATE_USER_SERVER, mHoadon.getPathImgSignedServer());
+        bundle.putInt(Common.KEY_STATUS_PAYMENT_INVOICE, 1);
+//        bundle.putString(Common.KEY_PATH_CERTIFICATE_USER_MOBILE, mHoadon.getPathImgSignedMobile());
+//        bundle.putString(Common.KEY_PATH_CERTIFICATE_USER_SERVER, mHoadon.getPathImgSignedServer());
         e.viewData = bundle;
         UserController.getInstance().handleViewEvent(e);
     }
+
+    public void actionPrintNotificationToPaper(int type, InvoiceHDDTDetails invoiceHDDTDetails) {
+        if (type == Common.PRINTER_WOOSIM) {
+            ToastMessageUtil.showToastShort(this, "Chức năng cần có máy in nhiệt Woosim để thực hiện!");
+//        PrintReceipt.printReceiptDemo_2inch();
+//        PrintReceipt.printReceiptDemoVNPT_2inch(this,mHoadon);
+//        return;
+            if (BluetoothPrinterActivity.mPrintService == null || BluetoothPrinterActivity.mPrintService.getState() != BluetoothPrintService.STATE_CONNECTED) {
+                showDialogConfirmConfigBluetooth(type, invoiceHDDTDetails);
+                return;
+            }
+            try {
+                PrintReceipt.printNotificationReceiptDemoVNPT_NEW(this, mHoadon);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        } else if (type == Common.PRINTER_ER58AI) {
+            ToastMessageUtil.showToastShort(this, "Chức năng cần có máy in nhiệt để thực hiện!");
+            if (com.vnpt.printproject.er58ai.BluetoothPrinterActivity.mPOSPrinter == null ||
+                    !com.vnpt.printproject.er58ai.BluetoothPrinterActivity.mPOSPrinter.isBTAvailable() ||
+                    com.vnpt.printproject.er58ai.BluetoothPrinterActivity.mPOSPrinter.getState() != com.vnpt.printproject.er58ai.BluetoothPrinterActivity.mPOSPrinter.STATE_CONNECTED) {
+                showDialogConfirmConfigBluetooth(type, invoiceHDDTDetails);
+                return;
+            }
+            try {
+                com.vnpt.printproject.er58ai.BluetoothPrinterActivity.printInvoice(invoiceHDDTDetails);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        } else if (type == Common.PRINTER_POS58) {
+
+        }
+    }
+
+    void showDialogConfirmConfigBluetooth(final int type, final InvoiceHDDTDetails invoiceHDDTDetails) {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+        alertDialogBuilder.setIcon(R.drawable.logo_vnpt);
+        alertDialogBuilder.setMessage("Bạn chưa thiết lập kết nối thiết bị in Bluetooth. Bạn có muốn kết nối đến thiết bị?");
+        alertDialogBuilder.setTitle("Thông báo");
+        alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                showActivityPrinterBT(type, invoiceHDDTDetails);
+            }
+        });
+        alertDialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        alertDialogBuilder.create().show();
+    }
+
+    public void showActivityPrinterBT(int type, InvoiceHDDTDetails invoiceHDDTDetails) {
+        if (type == Common.PRINTER_WOOSIM) {
+            Intent itent = new Intent(this, BluetoothPrinterActivity.class);
+            startActivity(itent);
+        } else if (type == Common.PRINTER_ER58AI) {
+            Intent itent = new Intent(this, com.vnpt.printproject.er58ai.BluetoothPrinterActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putSerializable(Common.KEY_DATA_ITEM_INVOICE, invoiceHDDTDetails);
+            itent.putExtras(bundle);
+            startActivity(itent);
+        } else if (type == Common.PRINTER_POS58) {
+            Intent itent = new Intent(this, com.vnpt.printproject.er58ai.BluetoothPrinterActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putSerializable(Common.KEY_DATA_ITEM_INVOICE, invoiceHDDTDetails);
+            itent.putExtras(bundle);
+            startActivity(itent);
+        }
+    }
+
     // Call Back method  to get the Message form other Activity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -143,27 +353,59 @@ public class DetailsActivity2 extends BaseActivity implements OnEventControlList
         // check if the request code is same as what is passed  here it is 2
 
         switch (requestCode) {
-            case Common.REQUEST_CODE_ACTIVITY_SIGNATURE_MANUAL: {
-                if (resultCode == RESULT_OK && data != null) {
-
-                    InvoiceTrG invoiceResult = (InvoiceTrG)data.getSerializableExtra(Common.KEY_DATA_ITEM_INVOICE);
-                    mHoadon = invoiceResult;
-                    updateTypeCerfiticateInvoice();
-                    showDetailsNotPayment();
-                    invalidateOptionsMenu();
-                    ActivityCompat.invalidateOptionsMenu(this);
-//                    Toast.makeText(this, "Cập nhật thông tin thành công!", Toast.LENGTH_LONG);
+//            case Common.REQUEST_CODE_ACTIVITY_SIGNATURE_MANUAL: {
+//                if (resultCode == RESULT_OK && data != null) {
+//
+//                    InvoiceCadmin invoiceResult = (InvoiceCadmin) data.getSerializableExtra(Common.KEY_DATA_ITEM_INVOICE);
+//                    mHoadon = invoiceResult;
+//                    updateTypeCerfiticateInvoice();
+////                    showDetailsNotPayment();
+//                    invalidateOptionsMenu();
+//                    ActivityCompat.invalidateOptionsMenu(this);
+////                    Toast.makeText(this, "Cập nhật thông tin thành công!", Toast.LENGTH_LONG);
+//                }
+//                break;
+//            }
+            case REQUEST_CONNECT_DEVICE:{
+                // When DeviceListActivity returns with a device to connect
+                if (resultCode == Activity.RESULT_OK) {
+                    // Get the device MAC address
+                    String address = data.getExtras().getString(
+                            com.vnpt.printproject.pos58bus.DeviceListActivity.EXTRA_DEVICE_ADDRESS);
+                    // Get the BLuetoothDevice object
+                    if (BluetoothAdapter.checkBluetoothAddress(address)) {
+                        BluetoothDevice device = mBluetoothAdapter
+                                .getRemoteDevice(address);
+                        // Attempt to connect to the device
+                        mPOSPrinter.connect(device);
+                    }
+                }
+                break;
+            }
+            case REQUEST_ENABLE_BT:{
+                // When the request to enable Bluetooth returns
+                if (resultCode == Activity.RESULT_OK) {
+                    // Bluetooth is now enabled, so set up a session
+                    KeyListenerInit();
+                } else {
+                    // User did not enable Bluetooth or an error occured
+                    Log.d(TAG, "BT not enabled");
+                    Toast.makeText(this, R.string.bt_not_enabled_leaving,
+                            Toast.LENGTH_SHORT).show();
+                    finish();
                 }
                 break;
             }
         }
+
 //        super.onActivityResult(requestCode, resultCode, data);
     }
+
     @Override
     public void onEvent(int eventType, View control, Object data) {
         switch (eventType) {
             case ActionEventConstant.ACTION_CHANGE_VIEW_DETAILS_FRAGMENT_ACTIVITY: {
-                showDetailsNotPayment();
+//                showDetailsNotPayment();
 //                setFragmentContent(DetailsActivityFragment.newInstance(mHoadon), FinishTransactionFragment.TAG,R.id.fragment_details_replace);
                 break;
             }
@@ -184,7 +426,7 @@ public class DetailsActivity2 extends BaseActivity implements OnEventControlList
                 break;
             }
             case ActionEventConstant.ACTION_CONFIRM_CERFITICATE_INVOICE: {
-               // showOrHidenMenuReturnInvoice(true);
+                // showOrHidenMenuReturnInvoice(true);
                 MethodConfirm method = (MethodConfirm) data;
                 actionAuthorizeForUser(method);
                 break;
@@ -224,10 +466,53 @@ public class DetailsActivity2 extends BaseActivity implements OnEventControlList
                 actionReturnPaymentInvoice(arrData);
                 break;
             }
-
+            case ActionEventConstant.ACTION_SHOW_DIALOG_CONFIRM_METHOD_INVOICE: {
+                showDiaLogConfirmPayment();
+                break;
+            }
+            case ActionEventConstant.ACTION_PRINT_INVOICE_NOTIFICATION: {
+                actionPrintNotificationToPaper(Common.PRINTER_WOOSIM, null);
+                break;
+            }case ActionEventConstant.ACTION_PRINT_INVOICE_ER58AI: {
+                InvoiceHDDTDetails invoiceHDDTDetails = (InvoiceHDDTDetails) data;
+                actionPrintNotificationToPaper(Common.PRINTER_ER58AI, invoiceHDDTDetails);
+                break;
+            }
             default:
                 break;
         }
+    }
+
+    void showDiaLogConfirmPayment() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(getString(R.string.message));
+        builder.setMessage(getString(R.string.txt_action_confirm_payment))
+                .setCancelable(false)
+                .setPositiveButton(getString(R.string.OK), new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        updateStatusPaymentInvoice();
+                    }
+                })
+                .setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+        final AlertDialog dialog = builder.create();
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(final DialogInterface dialog) {
+                Button negativeButton = ((AlertDialog) dialog).getButton(DialogInterface.BUTTON_NEGATIVE);
+                Button positiveButton = ((AlertDialog) dialog).getButton(DialogInterface.BUTTON_POSITIVE);
+                // this not working because multiplying white background (e.g. Holo Light) has no effect
+                //negativeButton.getBackground().setColorFilter(0xFFFF0000, PorterDuff.Mode.MULTIPLY);
+                negativeButton.setTextColor(getResources().getColor(R.color.blue2));
+                positiveButton.setTextColor(getResources().getColor(R.color.blue2));
+                negativeButton.invalidate();
+                positiveButton.invalidate();
+            }
+        });
+        dialog.show();
     }
 
     /**
@@ -243,18 +528,20 @@ public class DetailsActivity2 extends BaseActivity implements OnEventControlList
     public void handleModelViewEvent(ModelEvent modelEvent) {
         ActionEvent act = modelEvent.getActionEvent();
         switch (act.action) {
-            case ActionEventConstant.ACTION_UPATE_STATUS_PAYMENT_INVOICE_NEW: {
-                String idInvoicePayment = Common.idInvoiceUpdatedPaymented;
-                if (idInvoicePayment.length() > 0) {
-                    if (idInvoicePayment.substring(idInvoicePayment.length() - 1).equals("-")) {
-                        Common.idInvoiceUpdatedPaymented = idInvoicePayment.substring(0, idInvoicePayment.length() - 1);
-                    }
-                }
-                Common.arrInvoiceUpdatePaymented = new ArrayList<>();
+            case ActionEventConstant.ACTION_UPATE_STATUS_PAYMENT_INVOICE: {
+//                String idInvoicePayment = Common.idInvoiceUpdatedPaymented;
+//                if (idInvoicePayment.length() > 0) {
+//                    if (idInvoicePayment.substring(idInvoicePayment.length() - 1).equals("-")) {
+//                        Common.idInvoiceUpdatedPaymented = idInvoicePayment.substring(0, idInvoicePayment.length() - 1);
+//                    }
+//                }
+//                Common.arrInvoiceUpdatePaymented = new ArrayList<>();
                 BaseReponse reponse = (BaseReponse) modelEvent
                         .getModelData();
-
-                if (reponse.getStatusCode() == Common.DATA_SUCCESS) {
+                //reload lại màn hình detail
+                if (reponse.getStatusCode() == ConstantsApp.StatusProgress.SUCCESS) {
+                    mHoadon.setPaymentStatus(ConstantsApp.StatusPayment.PAYMENTED);
+                    showDetailsInvoice(mHoadon);
                     ToastMessageUtil.showToastShort(DetailsActivity2.this, "Cập nhật thành công!");
                 } else {
                     ToastMessageUtil.showToastShort(DetailsActivity2.this, "Cập nhật trạng thái không thành công!");
@@ -277,14 +564,11 @@ public class DetailsActivity2 extends BaseActivity implements OnEventControlList
             case ActionEventConstant.ACTION_UPDATE_SIGNED_INVOICE: {
                 String result = (String) modelEvent
                         .getModelData();
-                Helper.getInstance().showLog(""+result);
-                if(!result.equals(""))
-                {
-                    ToastMessageUtil.showToastShort(this,getString(R.string.txt_save_infor_success));
-                }
-                else
-                {
-                    ToastMessageUtil.showToastShort(this,getString(R.string.txt_save_infor_not_success));
+                Helper.getInstance().showLog("" + result);
+                if (!result.equals("")) {
+                    ToastMessageUtil.showToastShort(this, getString(R.string.txt_save_infor_success));
+                } else {
+                    ToastMessageUtil.showToastShort(this, getString(R.string.txt_save_infor_not_success));
                 }
                 break;
             }
@@ -306,28 +590,25 @@ public class DetailsActivity2 extends BaseActivity implements OnEventControlList
         ActionEvent act = modelEvent.getActionEvent();
 
         switch (act.action) {
-            case ActionEventConstant.ACTION_UPATE_STATUS_PAYMENT_INVOICE_NEW: {
-                Common.idInvoiceUpdatedPaymented = "";
-                Common.arrInvoiceUpdatePaymented = new ArrayList<>();
-                ToastMessageUtil.showToastShort(this,getString(R.string.txt_save_infor_not_success));
+            case ActionEventConstant.ACTION_UPATE_STATUS_PAYMENT_INVOICE: {
+//                Common.idInvoiceUpdatedPaymented = "";
+//                Common.arrInvoiceUpdatePaymented = new ArrayList<>();
+                ToastMessageUtil.showToastShort(this, getString(R.string.txt_save_infor_not_success));
                 break;
             }
 
             case ActionEventConstant.ACTION_UPDATE_STATUS_RETURN_INVOICE: {
-                ToastMessageUtil.showToastShort(this,getString(R.string.txt_save_infor_not_success));
+                ToastMessageUtil.showToastShort(this, getString(R.string.txt_save_infor_not_success));
                 break;
             }
             case ActionEventConstant.ACTION_UPDATE_SIGNED_INVOICE: {
                 String result = (String) modelEvent
                         .getModelData();
-                Helper.getInstance().showLog(""+result);
-                if(!result.equals(""))
-                {
-                    ToastMessageUtil.showToastShort(this,getString(R.string.txt_save_infor_success));
-                }
-                else
-                {
-                    ToastMessageUtil.showToastShort(this,getString(R.string.txt_save_infor_not_success));
+                Helper.getInstance().showLog("" + result);
+                if (!result.equals("")) {
+                    ToastMessageUtil.showToastShort(this, getString(R.string.txt_save_infor_success));
+                } else {
+                    ToastMessageUtil.showToastShort(this, getString(R.string.txt_save_infor_not_success));
                 }
                 break;
             }
@@ -461,7 +742,7 @@ public class DetailsActivity2 extends BaseActivity implements OnEventControlList
         e.action = ActionEventConstant.ACTION_UPATE_CERTIFIED_ON_INVOICE;
         e.sender = this;
         Bundle bundle = new Bundle();
-        bundle.putInt(Common.KEY_ID_INVOICE_CERTIFICATE, mHoadon.getId());
+        bundle.putString(Common.KEY_ID_INVOICE_CERTIFICATE, mHoadon.getInvNum());
         String authorize = StoreSharePreferences.getInstance(this).loadStringSavedPreferences(Common.REFF_KEY_METHOD_AUTHORIZE_USER);
         String finishAuthorize = authorize + "-" + Common.TYPE_VIEW_CERFITICATE_CAMERA;
         StoreSharePreferences.getInstance(this).saveStringPreferences(Common.REFF_KEY_METHOD_AUTHORIZE_USER, finishAuthorize);
@@ -478,7 +759,7 @@ public class DetailsActivity2 extends BaseActivity implements OnEventControlList
         e.action = ActionEventConstant.ACTION_UPATE_CERTIFIED_ON_INVOICE;
         e.sender = this;
         Bundle bundle = new Bundle();
-        bundle.putInt(Common.KEY_ID_INVOICE_CERTIFICATE, mHoadon.getId());
+        bundle.putString(Common.KEY_ID_INVOICE_CERTIFICATE, mHoadon.getInvNum());
         bundle.putInt(Common.KEY_TYPE_UPDATE_CERTIFICATE, Common.TYPE_VIEW_CERFITICATE_SMS);
         bundle.putInt(Common.KEY_STATUS_PAYMENT_INVOICE, 1);
         String pathImage = "Gửi Tin nhắn qua số 01216644955";
@@ -492,7 +773,7 @@ public class DetailsActivity2 extends BaseActivity implements OnEventControlList
         e.action = ActionEventConstant.ACTION_UPATE_CERTIFIED_ON_INVOICE;
         e.sender = this;
         Bundle bundle = new Bundle();
-        bundle.putInt(Common.KEY_ID_INVOICE_CERTIFICATE, mHoadon.getId());
+        bundle.putString(Common.KEY_ID_INVOICE_CERTIFICATE, mHoadon.getInvNum());
         bundle.putString(Common.KEY_TYPE_UPDATE_CERTIFICATE, typeCertificate);
         bundle.putInt(Common.KEY_STATUS_PAYMENT_INVOICE, 1);
 //        String pathImage = "Gửi Tin nhắn qua số 01216644955";
@@ -501,13 +782,17 @@ public class DetailsActivity2 extends BaseActivity implements OnEventControlList
         UserController.getInstance().handleViewEvent(e);
     }
 
-    protected void updateStatusInvoice() {
+    protected void updateStatusPaymentInvoice() {
         ActionEvent e = new ActionEvent();
         e.action = ActionEventConstant.ACTION_UPATE_STATUS_PAYMENT_INVOICE;
         e.sender = this;
         Bundle bundle = new Bundle();
-        bundle.putInt(Common.KEY_ID_INVOICE_CERTIFICATE, mHoadon.getId());
-        bundle.putInt(Common.KEY_STATUS_PAYMENT_INVOICE, 1);
+        bundle.putString(Common.BUNDLE_KEY_FKEY_INVOICE, mHoadon.getFkey());
+        if (mHoadon.getPaymentStatus() == ConstantsApp.StatusPayment.PAYMENTED) {
+            bundle.putInt(Common.KEY_STATUS_PAYMENT_INVOICE, ConstantsApp.StatusPayment.NOT_PAYMENT);
+        } else {
+            bundle.putInt(Common.KEY_STATUS_PAYMENT_INVOICE, ConstantsApp.StatusPayment.PAYMENTED);
+        }
         e.viewData = bundle;
         UserController.getInstance().handleViewEvent(e);
     }
@@ -567,18 +852,18 @@ public class DetailsActivity2 extends BaseActivity implements OnEventControlList
         }
         updateStatusPaymentInvoice();
         handleAuthorizeForCustomer(methodAuthorize);
-       // showOrHidenMenuReturnInvoice(true);
+        // showOrHidenMenuReturnInvoice(true);
     }
 
     //handle request data server
-    protected void updateStatusPaymentInvoice() {
-        ActionEvent e = new ActionEvent();
-        e.action = ActionEventConstant.ACTION_UPATE_STATUS_PAYMENT_INVOICE_NEW;
-        e.sender = this;
-        Bundle bundle = new Bundle();
-        e.viewData = bundle;
-        UserController.getInstance().handleViewEvent(e);
-    }
+//    protected void updateStatusPaymentInvoice() {
+//        ActionEvent e = new ActionEvent();
+//        e.action = ActionEventConstant.ACTION_UPATE_STATUS_PAYMENT_INVOICE_NEW;
+//        e.sender = this;
+//        Bundle bundle = new Bundle();
+//        e.viewData = bundle;
+//        UserController.getInstance().handleViewEvent(e);
+//    }
 
     //handle request data server
     protected void actionReturnPaymentInvoice(ArrayList<InvoiceUpdatePaymentedRequest> arrData) {
@@ -649,7 +934,7 @@ public class DetailsActivity2 extends BaseActivity implements OnEventControlList
             ex.printStackTrace();
         }
 
-//        ToastMessageUtil.showToastShort(this, "Chức năng hỗ trợ in hóa đơn qua máy in nhiệt!");
+        ToastMessageUtil.showToastShort(this, "Chức năng hỗ trợ in hóa đơn qua máy in nhiệt!");
     }
 
     void actionSendEmail() {
@@ -666,16 +951,16 @@ public class DetailsActivity2 extends BaseActivity implements OnEventControlList
         dialog.show(getSupportFragmentManager(), ReturnReceiptInvoiceDialog.TAG);
     }
 
-    void showOrHidenMenuReturnInvoice(boolean isShow,MenuItem item) {
-            if (item != null) {
-                if (isShow) {
-                    item.setVisible(true);
-                } else {
-                    item.setVisible(false);
-                }
-                invalidateOptionsMenu();
-                ActivityCompat.invalidateOptionsMenu(this);
+    void showOrHidenMenuReturnInvoice(boolean isShow, MenuItem item) {
+        if (item != null) {
+            if (isShow) {
+                item.setVisible(true);
+            } else {
+                item.setVisible(false);
             }
+            invalidateOptionsMenu();
+            ActivityCompat.invalidateOptionsMenu(this);
+        }
     }
 
 }
