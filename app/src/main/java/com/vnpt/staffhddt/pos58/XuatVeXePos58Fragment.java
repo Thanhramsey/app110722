@@ -46,6 +46,7 @@ import com.vnpt.utils.DialogUtils;
 import com.vnpt.utils.StoreSharePreferences;
 import com.vnpt.webservice.AppServices;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -547,6 +548,7 @@ public class XuatVeXePos58Fragment extends BaseFragment implements View.OnClickL
 //                            Toast.makeText(getContext(), khachHang.getNAME(), Toast.LENGTH_LONG).show();
                             Intent intent = new Intent(getContext(), DetailsActivity.class);
                             intent.putExtra("KEY_KHACHHANG", khachHang);
+                            intent.putExtra("KEY_PHI", (Serializable) loaiPhiList);
                             startActivity(intent);
                         }
                     });

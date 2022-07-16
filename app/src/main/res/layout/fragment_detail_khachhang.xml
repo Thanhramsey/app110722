@@ -7,16 +7,6 @@
     android:padding="10dp"
     tools:context="com.vnpt.staffhddt.er58.XuatVeGopDiaChiFragment">
 
-
-    <!--    <com.rengwuxian.materialedittext.MaterialEditText-->
-    <!--        android:id="@+id/edtSoLuongThang2"-->
-    <!--        android:layout_width="match_parent"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        android:layout_below="@+id/txtSoLuongThang"-->
-    <!--        android:hint="Nhập số lượng Tháng"-->
-    <!--        android:inputType="number"-->
-    <!--        android:text="1" />-->
-
     <TextView
         android:id="@+id/txtInVeGop"
         android:textSize="22sp"
@@ -43,8 +33,38 @@
         android:hint="Nhập tên khách hàng" />
 
     <TextView
-        android:id="@+id/txtDiaChi"
+        android:id="@+id/txtTenCongTy"
         android:layout_below="@+id/edtTenKhachHang"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Tên công ty" />
+
+    <com.rengwuxian.materialedittext.MaterialEditText
+        android:id="@+id/edtTenCongTy"
+        android:inputType="text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/txtTenCongTy"
+        android:hint="Tên công ty" />
+
+    <TextView
+        android:id="@+id/txtMst"
+        android:layout_below="@+id/edtTenCongTy"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Mã số thuế" />
+
+    <com.rengwuxian.materialedittext.MaterialEditText
+        android:id="@+id/edtMst"
+        android:inputType="text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/txtMst"
+        android:hint="Mã số thuế" />
+
+    <TextView
+        android:id="@+id/txtDiaChi"
+        android:layout_below="@+id/edtMst"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Địa chỉ" />
@@ -138,20 +158,11 @@
         android:inputType="number"
         android:text="1" />
 
-
-    <Button
-        android:id="@+id/btnXuatBienLai"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/edtSoLuongThang"
-        android:layout_marginTop="0dp"
-        android:text="Xuất vé" />
-
     <Button
         android:id="@+id/btnCheck"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/btnXuatBienLai"
+        android:layout_below="@+id/edtSoLuongThang"
         android:layout_marginTop="0dp"
         android:text="Check thiết bị" />
 
@@ -162,6 +173,15 @@
         android:layout_below="@+id/btnCheck"
         android:layout_marginTop="0dp"
         android:text="In thử" />
+
+    <Button
+        android:id="@+id/btnXuatBienLai"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="0dp"
+        android:layout_below="@+id/btnInThu"
+        android:text="Xuất vé" />
+
 
     <RelativeLayout
         android:layout_alignParentBottom="true"

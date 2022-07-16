@@ -42,6 +42,7 @@ import com.vnpt.printproject.pos58bus.BluetoothService;
 import com.vnpt.printproject.woosim.BluetoothPrintService;
 import com.vnpt.printproject.woosim.BluetoothPrinterActivity;
 import com.vnpt.room.KhachHang;
+import com.vnpt.room.LoaiPhi;
 import com.vnpt.room.Xa;
 import com.vnpt.staffhddt.dialogs.AuthenticationForAppDialog;
 import com.vnpt.staffhddt.dialogs.ReturnReceiptInvoiceDialog;
@@ -55,6 +56,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -64,6 +66,7 @@ public class DetailsActivity extends BaseActivity implements OnEventControlListe
     InvoiceCadmin mHoadon;
     String methodAuthorize = "";
     KhachHang khachHang;
+    List<LoaiPhi> loaiPhiList;
     public static final String TAG = DetailsActivity.class.getName();
     //xuat bien lai
     public static com.vnpt.printproject.pos58bus.BluetoothService mPOSPrinter = null;
@@ -97,6 +100,7 @@ public class DetailsActivity extends BaseActivity implements OnEventControlListe
         if (bundle != null)
 //            mHoadon = (InvoiceCadmin) bundle.getSerializable(Common.KEY_DATA_ITEM_INVOICE);
             khachHang = (KhachHang) intent.getSerializableExtra("KEY_KHACHHANG");
+            loaiPhiList = (List< LoaiPhi>) intent.getSerializableExtra("KEY_PHI");
 //        showDetailsInvoice(mHoadon);
         showDetailsKhachHang(khachHang);
 //        showOrHidenMenuReturnInvoice(false);
@@ -206,6 +210,7 @@ public class DetailsActivity extends BaseActivity implements OnEventControlListe
         Bundle args = new Bundle();
         //mHoadon.setPaymentStatus(ConstantsApp.StatusPayment.NOT_PAYMENT);
         args.putSerializable("KEY_DATA_KHACHHANG", khachHang);
+        args.putSerializable("KEY_DATA_PHI", (Serializable) loaiPhiList);
         fragment.setArguments(args);
         setFragmentContent(fragment, DetailsKhachHangActivityFragment.TAG, R.id.root_layout);
 
