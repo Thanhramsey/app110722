@@ -17,20 +17,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
-<!--    <TextView-->
-<!--        android:id="@+id/txtCompanyInfo"-->
-<!--        android:layout_below="@+id/txtInVeGop"-->
-<!--        android:textSize="22sp"-->
-<!--        android:textStyle="bold"-->
-<!--        android:textColor="@android:color/holo_blue_light"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        tools:text="Cong ty A SaMa" />-->
-
     <Spinner
         android:id="@+id/spMenhGia"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="40dp"
         android:layout_below="@+id/txtInVeGop"
         android:spinnerMode="dropdown"
         style="@style/spinner_style"/>
@@ -39,14 +29,45 @@
         android:id="@+id/spPhuong"
         style="@style/spinner_style"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="40dp"
         android:layout_below="@+id/spMenhGia" />
+
+    <LinearLayout
+        android:id="@+id/layout1"
+        android:layout_width="376dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/spPhuong"
+        android:layout_marginStart="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="5dp"
+        android:background="@android:color/transparent"
+
+        android:orientation="horizontal">
+
+        <com.rengwuxian.materialedittext.MaterialEditText
+            android:id="@+id/edtSearch"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/txtTenKhachHang"
+            android:layout_marginRight="10dp"
+            android:hint="Nhập tên khách hàng"
+            android:inputType="text" />
+
+        <Button
+            android:id="@+id/btnSearch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Tìm kiếm" />
+    </LinearLayout>
 
     <ListView
         android:id="@+id/listproduct"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/spPhuong"/>
+        android:layout_below="@+id/layout1" />
 
 <!--    <TextView-->
 <!--        android:id="@+id/txtBSX"-->

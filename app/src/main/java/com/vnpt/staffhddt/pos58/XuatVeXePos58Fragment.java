@@ -26,6 +26,7 @@ import android.widget.Toast;
 import com.awesomedialog.blennersilva.awesomedialoglibrary.AwesomeProgressDialog;
 import com.izettle.html2bitmap.Html2Bitmap;
 import com.izettle.html2bitmap.content.WebViewContent;
+import com.rengwuxian.materialedittext.MaterialEditText;
 import com.vnpt.common.Common;
 import com.vnpt.common.ModelEvent;
 import com.vnpt.listener.OnEventControlListener;
@@ -48,10 +49,14 @@ import com.vnpt.webservice.AppServices;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.vnpt.staffhddt.MainPos58Activity.mPOSPrinter;
 import static com.vnpt.utils.Helper.hideSoftKeyboard;
+
+import androidx.annotation.RequiresApi;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -63,7 +68,8 @@ public class XuatVeXePos58Fragment extends BaseFragment implements View.OnClickL
     Spinner spMenhGia,spPhuong;
 //    MaterialEditText edtSoLuong, edtBSX;
 //    Button btnXuatBL, btnInThu, btnCheckTB;
-    Button btnInThu;
+    Button btnInThu,btnSearch;
+    MaterialEditText edtSearch;
 //    TextView txtCompanyInfo;
     private AwesomeProgressDialog dg;
     StoreSharePreferences preferences = null;
@@ -117,6 +123,8 @@ public class XuatVeXePos58Fragment extends BaseFragment implements View.OnClickL
         spMenhGia = layout.findViewById(R.id.spMenhGia);
         spPhuong = layout.findViewById(R.id.spPhuong);
         btnInThu = layout.findViewById(R.id.btnInThu);
+        btnSearch =layout.findViewById(R.id.btnSearch);
+        edtSearch = layout.findViewById(R.id.edtSearch);
         listViewProduct = layout.findViewById(R.id.listproduct);
 
 //        edtSoLuong = layout.findViewById(R.id.edtSoLuong);
@@ -145,6 +153,7 @@ public class XuatVeXePos58Fragment extends BaseFragment implements View.OnClickL
     protected void setEventForMembers() {
 //        btnXuatBL.setOnClickListener(this);
         btnInThu.setOnClickListener(this);
+        btnSearch.setOnClickListener(this);
 //        btnCheckTB.setOnClickListener(this);
 
         spMenhGia.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -290,6 +299,7 @@ public class XuatVeXePos58Fragment extends BaseFragment implements View.OnClickL
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -315,6 +325,41 @@ public class XuatVeXePos58Fragment extends BaseFragment implements View.OnClickL
                 checkPrinter();
                 break;
             }
+            case R.id.btnSearch:{
+                searhKhachHang();
+                break;
+            }
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public void searhKhachHang(){
+        String searchText = edtSearch.getText().toString().trim();
+        List<KhachHang> khachHangSearch = khachHangList.stream().filter(p -> p.getNAME().trim().toLowerCase().contains(searchText.trim().toLowerCase())).collect(Collectors.toList());
+        if(khachHangSearch.size()>0 && khachHangSearch != null)
+        {
+            listKhachHang = new ArrayList<>();
+            for(KhachHang kh : khachHangSearch){
+                if(kh.getDIACHI() == null || kh.getDIACHI().length() == 0){
+                    kh.setDIACHI(phuong.getNAME() +" - "+ xa.getNAME());
+                }
+                listKhachHang.add(new KhachHang(kh));
+            }
+            productListViewAdapter = new ProductListViewAdapter(listKhachHang);
+            listViewProduct.setAdapter(productListViewAdapter);
+            listViewProduct.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    KhachHang khachHang = (KhachHang) productListViewAdapter.getItem(position);
+//                            Toast.makeText(getContext(), khachHang.getNAME(), Toast.LENGTH_LONG).show();
+                    Intent intent = new Intent(getContext(), DetailsActivity.class);
+                    intent.putExtra("KEY_KHACHHANG", khachHang);
+                    intent.putExtra("KEY_PHI", (Serializable) loaiPhiList);
+                    startActivity(intent);
+                }
+            });
+        }else{
+            listViewProduct.setAdapter(null);
         }
     }
 
