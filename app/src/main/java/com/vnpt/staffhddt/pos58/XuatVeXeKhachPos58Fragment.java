@@ -691,7 +691,7 @@ public class XuatVeXeKhachPos58Fragment extends BaseFragment implements View.OnC
             ((TextView) viewProduct.findViewById(R.id.idproduct)).setText(String.format("STT : %d", khachHang.getID()));
             ((TextView) viewProduct.findViewById(R.id.nameproduct)).setText(String.format("Tên KH : %s", khachHang.getNAME()));
             ((TextView) viewProduct.findViewById(R.id.diachi)).setText(String.format("Địa chỉ : %s", khachHang.getDIACHI()));
-            ((TextView) viewProduct.findViewById(R.id.priceproduct)).setText(String.format("Mệnh giá %d", khachHang.getSOTIEN()*1000));
+            ((TextView) viewProduct.findViewById(R.id.priceproduct)).setText(String.format("Mệnh giá %d", khachHang.getSOTIEN()));
 
 
             return viewProduct;

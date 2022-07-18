@@ -8,6 +8,7 @@ import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
+import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 public interface ApiClient {
@@ -18,12 +19,12 @@ public interface ApiClient {
     @GET("xem/getthongtintk")
     Call<CompanyInfo> getCompanyInfo(@Query("mst") String mst);
 
-    @GET("/xem/getthongtinxa")
+    @GET("/API/GetThongTinXa")
     Call<List<Xa>> getXa();
 
-    @GET("/xem/GetThongTinPhuong")
-    Call<List<Xa>> getPhuong(@Query("xaid") Integer xaid);
+    @GET("/API/GetThongTinPhuong/{id}")
+    Call<List<Xa>> getPhuong(@Path("id") Integer id);
 
-    @GET("/xem/GetThongTinXaPhuong")
-    Call<List<KhachHang>> getKhachHangs(@Query("xaid") Integer xaid);
+    @GET("/API/GetThongTinXaPhuong/{id}")
+    Call<List<KhachHang>> getKhachHangs(@Path("id") Integer id);
 }

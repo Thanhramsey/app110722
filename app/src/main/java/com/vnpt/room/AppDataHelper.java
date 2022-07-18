@@ -17,6 +17,7 @@ public class AppDataHelper {
 
     private static AppDatabase appDatabase;
     private static Retrofit retrofit;
+    private static Retrofit retrofit2;
 
     public static AppDatabase getAppDatabase(Context context) {
         if (appDatabase == null) {
@@ -47,7 +48,33 @@ public class AppDataHelper {
         return retrofit;
     }
 
+    public static Retrofit getRetrofit2() {
+
+        OkHttpClient client = new OkHttpClient.Builder().hostnameVerifier(new HostnameVerifier() {
+            @Override
+            public boolean verify(String hostname, SSLSession session) {
+                return true;
+            }
+        }).build();
+
+        if (retrofit2 == null) {
+            retrofit2 = new Retrofit.Builder()
+                    .baseUrl("http://bqlctdtchuse.vn/")
+                    .client(client)
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
+
+        }
+        return retrofit2;
+    }
+
+
+//    http://bqlctdtchuse.vn/API/GetThongTinXa
+
     public static ApiClient getApiClient() {
         return getRetrofit().create(ApiClient.class);
+    }
+    public static ApiClient getApiClient2() {
+        return getRetrofit2().create(ApiClient.class);
     }
 }

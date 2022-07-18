@@ -37,10 +37,10 @@
 
     <Spinner
         android:id="@+id/spPhuong"
+        style="@style/spinner_style"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:layout_below="@+id/spMenhGia"
-        style="@style/spinner_style"/>
+        android:layout_below="@+id/spMenhGia" />
 
     <ListView
         android:id="@+id/listproduct"

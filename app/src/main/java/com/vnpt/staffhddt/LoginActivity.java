@@ -275,7 +275,9 @@ public class LoginActivity extends BaseActivity implements OnEventControlListene
                     StoreSharePreferences.getInstance(LoginActivity.this).saveStringPreferences(Common.KEY_COMPANY_PORTAL, companyInfo.getPORTAL());
                     StoreSharePreferences.getInstance(LoginActivity.this).saveStringPreferences(Common.KEY_COMPANY_USER, companyInfo.getUSER());
                     StoreSharePreferences.getInstance(LoginActivity.this).saveStringPreferences(Common.KEY_COMPANY_PASS, companyInfo.getPASS());
-                    StoreSharePreferences.getInstance(LoginActivity.this).saveIntPreferences(Common.KEY_COMPANY_STATUS, companyInfo.getSTATUS());
+//                    StoreSharePreferences.getInstance(LoginActivity.this).saveIntPreferences(Common.KEY_COMPANY_STATUS, companyInfo.getSTATUS());
+                    //hard code cho chư sê
+                    StoreSharePreferences.getInstance(LoginActivity.this).saveIntPreferences(Common.KEY_COMPANY_STATUS, 2);
                     StoreSharePreferences.getInstance(LoginActivity.this).saveIntPreferences(Common.KEY_COMPANY_TYPE, companyInfo.getTYPE());
                 } else {
                     showProgress(false);
@@ -292,8 +294,8 @@ public class LoginActivity extends BaseActivity implements OnEventControlListene
     }
 
     private void loadListFeeData(String mst) {
-        ApiClient apiClient = AppDataHelper.getApiClient();
-                apiClient.getListLoaiPhi(mst).enqueue(new Callback<List<LoaiPhi>>() {
+            ApiClient apiClient = AppDataHelper.getApiClient();
+            apiClient.getListLoaiPhi(mst).enqueue(new Callback<List<LoaiPhi>>() {
             @Override
             public void onResponse(Call<List<LoaiPhi>> call, Response<List<LoaiPhi>> response) {
                 //Toast.makeText(LoginActivity.this, response.toString(), Toast.LENGTH_LONG).show();
@@ -312,8 +314,8 @@ public class LoginActivity extends BaseActivity implements OnEventControlListene
     }
 
     private void loadXa() {
-        ApiClient apiClient = AppDataHelper.getApiClient();
-        apiClient.getXa().enqueue(new Callback<List<Xa>>() {
+        ApiClient apiClient2 = AppDataHelper.getApiClient2();
+        apiClient2.getXa().enqueue(new Callback<List<Xa>>() {
             @Override
             public void onResponse(Call<List<Xa>> call, Response<List<Xa>> response) {
                 //Toast.makeText(LoginActivity.this, response.toString(), Toast.LENGTH_LONG).show();

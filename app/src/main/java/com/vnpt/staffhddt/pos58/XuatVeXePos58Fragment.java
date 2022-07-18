@@ -496,8 +496,8 @@ public class XuatVeXePos58Fragment extends BaseFragment implements View.OnClickL
     }
 
     private void loadPhuong(int id) {
-        ApiClient apiClient = AppDataHelper.getApiClient();
-        apiClient.getPhuong(id).enqueue(new Callback<List<Xa>>() {
+        ApiClient apiClient2 = AppDataHelper.getApiClient2();
+        apiClient2.getPhuong(id).enqueue(new Callback<List<Xa>>() {
             @Override
             public void onResponse(Call<List<Xa>> call, Response<List<Xa>> response) {
                 //Toast.makeText(LoginActivity.this, response.toString(), Toast.LENGTH_LONG).show();
@@ -522,8 +522,8 @@ public class XuatVeXePos58Fragment extends BaseFragment implements View.OnClickL
     }
 
     private void loadKhachHang(int id) {
-        ApiClient apiClient = AppDataHelper.getApiClient();
-        apiClient.getKhachHangs(id).enqueue(new Callback<List<KhachHang>>() {
+        ApiClient apiClient2 = AppDataHelper.getApiClient2();
+        apiClient2.getKhachHangs(id).enqueue(new Callback<List<KhachHang>>() {
             @Override
             public void onResponse(Call<List<KhachHang>> call, Response<List<KhachHang>> response) {
                 //Toast.makeText(LoginActivity.this, response.toString(), Toast.LENGTH_LONG).show();
@@ -534,7 +534,7 @@ public class XuatVeXePos58Fragment extends BaseFragment implements View.OnClickL
                 {
                     listKhachHang = new ArrayList<>();
                     for(KhachHang kh : khachHangList){
-                        if(kh.getDIACHI() == null){
+                        if(kh.getDIACHI() == null || kh.getDIACHI().length() == 0){
                             kh.setDIACHI(phuong.getNAME() +" - "+ xa.getNAME());
                         }
                         listKhachHang.add(new KhachHang(kh));
@@ -552,6 +552,8 @@ public class XuatVeXePos58Fragment extends BaseFragment implements View.OnClickL
                             startActivity(intent);
                         }
                     });
+                }else{
+                    listViewProduct.setAdapter(null);
                 }
             }
             @Override
@@ -679,7 +681,7 @@ public class XuatVeXePos58Fragment extends BaseFragment implements View.OnClickL
             ((TextView) viewProduct.findViewById(R.id.idproduct)).setText(String.format("STT : %d", khachHang.getID()));
             ((TextView) viewProduct.findViewById(R.id.nameproduct)).setText(String.format("Tên KH : %s", khachHang.getNAME()));
             ((TextView) viewProduct.findViewById(R.id.diachi)).setText(String.format("Địa chỉ : %s", khachHang.getDIACHI()));
-            ((TextView) viewProduct.findViewById(R.id.priceproduct)).setText(String.format("Mệnh giá %d", khachHang.getSOTIEN()*1000));
+            ((TextView) viewProduct.findViewById(R.id.priceproduct)).setText(String.format("Mệnh giá: %d", khachHang.getSOTIEN()));
 
 
             return viewProduct;

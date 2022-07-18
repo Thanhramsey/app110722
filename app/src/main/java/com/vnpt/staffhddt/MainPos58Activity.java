@@ -133,6 +133,17 @@ public class MainPos58Activity extends BaseActivity
         navigationView.inflateMenu(R.menu.activity_main_drawer_staff);
         navigationView.getMenu().getItem(0).setChecked(true);
         navigationView.setNavigationItemSelectedListener(this);
+
+        //hide menu
+        Menu nav_Menu = navigationView.getMenu();
+        nav_Menu.findItem(R.id.nav_vegopdiachi).setVisible(false);
+        nav_Menu.findItem(R.id.nav_vegop).setVisible(false);
+        nav_Menu.findItem(R.id.nav_statistics).setVisible(false);
+        nav_Menu.findItem(R.id.nav_vexekhach).setVisible(false);
+        nav_Menu.findItem(R.id.nav_select_printer).setVisible(false);
+        nav_Menu.findItem(R.id.nav_hddt).setVisible(false);
+        nav_Menu.findItem(R.id.nav_vemenhgia).setVisible(false);
+
         try {
             String name = StoreSharePreferences.getInstance(
                     this).loadStringSavedPreferences(
@@ -214,7 +225,7 @@ public class MainPos58Activity extends BaseActivity
 
                     break;
                 case MESSAGE_UNABLE_CONNECT:     //无法连接设备
-                    Toast.makeText(getApplicationContext(), "Unable to connect device",
+                    Toast.makeText(getApplicationContext(), "Không thể kết nối với thiết bị",
                             Toast.LENGTH_SHORT).show();
                     break;
             }

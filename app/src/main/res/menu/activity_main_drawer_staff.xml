@@ -60,6 +60,7 @@
                     android:icon="@drawable/ic_print"
                     android:title="In HDDT"
                     />
+
                 <item
                     android:id="@+id/nav_statistics"
                     android:icon="@drawable/statistics"

@@ -229,8 +229,10 @@ public class DetailsActivity extends BaseActivity implements OnEventControlListe
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_details, menu);
-//        MenuItem item = menu.findItem(R.id.action_view_content);
+        MenuItem item = menu.findItem(R.id.action_view_content);
+        item.setVisible(false);
 //        showOrHidenMenuReturnInvoice(false,item);
+
         return super.onCreateOptionsMenu(menu);
     }
 
