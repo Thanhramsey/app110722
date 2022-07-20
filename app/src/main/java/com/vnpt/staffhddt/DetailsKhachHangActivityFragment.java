@@ -262,6 +262,7 @@ public class DetailsKhachHangActivityFragment extends BaseFragment implements Vi
 
         btnScan = (FloatingActionButton) layout.findViewById(R.id.btn_scan);
         btnScan.setOnClickListener(this);
+        btnScan.setVisibility(View.GONE);
 //        txtCompanyInfo = layout.findViewById(R.id.txtCompanyInfo);
 
         tuNam.setText(String.valueOf(Calendar.getInstance().get(Calendar.YEAR)));
@@ -392,7 +393,7 @@ public class DetailsKhachHangActivityFragment extends BaseFragment implements Vi
         String tenCongty = edtTenCongTy.getText().toString().trim();
         String maSoThue = edtMst.getText().toString().trim();
 
-        String tenVe = "Vé thu tiền rác từ tháng "+ tuThangVal+ "/" +tuNam.getText().toString().trim()+" đến tháng " + denThangVal +"/" +denNam.getText().toString().trim() ;
+        String tenVe = "Thu tiền rác từ tháng "+ tuThangVal+ "/" +tuNam.getText().toString().trim()+" đến tháng " + denThangVal +"/" +denNam.getText().toString().trim() ;
 
 
 //        String tuThangVal = tuThang.getText().toString().trim();
@@ -407,7 +408,7 @@ public class DetailsKhachHangActivityFragment extends BaseFragment implements Vi
             edtSoLuongThang.setError(getString(R.string.error_empty_input));
             focusView = edtSoLuongThang;
             cancel = true;
-        } else if(TextUtils.isEmpty(tenKhachHang)){
+        } else if(TextUtils.isEmpty(tenKhachHang) && edtTenCongTy.getText().toString().length()==0 && edtMst.getText().toString().length()==0 ){
             edtTenKhachHang.setError(getString(R.string.error_empty_input));
             focusView = edtTenKhachHang;
             cancel = true;
@@ -704,6 +705,7 @@ public class DetailsKhachHangActivityFragment extends BaseFragment implements Vi
 //        NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(currentLocale);
 
 //        String name = (type == Common.TYPE_VE) ? "VÉ ĐIỆN TỬ" :  "BIÊN LAI ĐIỆN TỬ";
+        String tenNguoiNop =  edtTenCongTy.getText().toString().length() > 0 ? edtTenCongTy.getText().toString().trim() : edtTenKhachHang.getText().toString().trim();
             String name = "VÉ ĐIỆN TỬ";
         String html = "<html>\n" +
                 "                <body>\n" +
@@ -723,7 +725,7 @@ public class DetailsKhachHangActivityFragment extends BaseFragment implements Vi
                 "<b>("+tenVe+")</b>" +
                 "</div>"+
                 "<div style=\"text-align:left;font-size: 23px\">"+
-                "<b> Họ tên người nộp: "+edtTenKhachHang.getText().toString().trim()+"</b> " +
+                "<b> Người nộp: "+tenNguoiNop+"</b> " +
                 "</div>"+
                 "<div style=\"text-align:left;font-size: 23px\">"+
                 "<b> Địa chỉ: "+edtDiaChi.getText().toString().trim()+" </b>" +
@@ -740,17 +742,20 @@ public class DetailsKhachHangActivityFragment extends BaseFragment implements Vi
                 "    <td style=\"font-size:30px;border:1px solid black;\">"+ Math.round(bienLai.getGiaTien()) +"</th>\n" +
                 "  </tr>\n" +
                 "</table>  \n" +
-                "<div style=\"text-align:left;font-size: 20px\">"+
-                "<b> Từ tháng: "+tuThangVal+ "/"+tuNam.getText().toString().trim()+ "  Đến tháng: "+denThangVal+ "/"+denNam.getText().toString().trim()+ " </b> " +
-                "</div>"+
-                "<div style=\"text-align:left;font-size: 20px\">"+
+//                "<div style=\"text-align:left;font-size: 20px\">"+
+//                "<b> Từ tháng: "+tuThangVal+ "/"+denNam.getText().toString().trim()+ "  Đến tháng: "+denThangVal+ "/"+denNam.getText().toString().trim()+ " </b> " +
+//                "</div>"+
+                "<div style=\"text-align:center;font-size: 23px\">"+
                 "<b> ("+ StringBienLai.docSo(bienLai.getGiaTien()) +") </b> " +
                 "</div>"+
                 "<div style=\"text-align:center;font-size: 20px\">"+
                 "<b> Ngày: "+date+"</b>\n" +
                 "</div>"+
                 "<div style=\"text-align:center;font-size: 20px\">"+
-                "<b>    Tên người thu</b>\n" +
+                "<b>Tên người thu</b>\n" +
+                "</div>"+
+                "<div style=\"text-align:center;font-size: 20px\">"+
+                "<b>"+StoreSharePreferences.getInstance(getContext()).loadStringSavedPreferences(Common.KEY_USER_NAME)+"</b>\n" +
                 "</div>"+
                 "<div style=\"text-align:center;\">"+
                 " <h1 style=\\\"text-align: center\\\"> ----------------------------- </h1>" +
@@ -910,11 +915,15 @@ public class DetailsKhachHangActivityFragment extends BaseFragment implements Vi
 
     private void checkPrinter() {
         if (mPOSPrinter.getState() != com.vnpt.printproject.pos58bus.BluetoothService.STATE_CONNECTED) {
-            Toast.makeText(getContext(), "Bạn chưa kết nối Bluetooth", Toast.LENGTH_SHORT)
-                    .show();
+//            Toast.makeText(getContext(), "Bạn chưa kết nối Bluetooth", Toast.LENGTH_SHORT)
+//                    .show();
+            Intent serverIntent = new Intent(getContext(), DeviceListActivity.class);
+            startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE);
+//            break;
         } else {
             Toast.makeText(getContext(), "Đã kết nối Bluetooth với thiết bị", Toast.LENGTH_SHORT)
                     .show();
+
         }
     }
 }

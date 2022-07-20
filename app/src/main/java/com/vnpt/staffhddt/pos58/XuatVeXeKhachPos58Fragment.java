@@ -510,7 +510,7 @@ public class XuatVeXeKhachPos58Fragment extends BaseFragment implements View.OnC
 
     private void loadPhuong(int id) {
         ApiClient apiClient = AppDataHelper.getApiClient();
-        apiClient.getPhuong(id).enqueue(new Callback<List<Xa>>() {
+        apiClient.getPhuong(id,Common.KEY_USER_NAME).enqueue(new Callback<List<Xa>>() {
             @Override
             public void onResponse(Call<List<Xa>> call, Response<List<Xa>> response) {
                 //Toast.makeText(LoginActivity.this, response.toString(), Toast.LENGTH_LONG).show();

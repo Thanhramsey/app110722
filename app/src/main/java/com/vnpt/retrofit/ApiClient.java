@@ -22,8 +22,8 @@ public interface ApiClient {
     @GET("/API/GetThongTinXa")
     Call<List<Xa>> getXa();
 
-    @GET("/API/GetThongTinPhuong/{id}")
-    Call<List<Xa>> getPhuong(@Path("id") Integer id);
+    @GET("/API/GetThongTinPhuong/{id}/{user}")
+    Call<List<Xa>> getPhuong(@Path("id") Integer id,@Path("user") String user);
 
     @GET("/API/GetThongTinXaPhuong/{id}")
     Call<List<KhachHang>> getKhachHangs(@Path("id") Integer id);

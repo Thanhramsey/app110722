@@ -34,11 +34,11 @@
 
     <LinearLayout
         android:id="@+id/layout1"
-        android:layout_width="376dp"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
         android:layout_below="@+id/spPhuong"
         android:layout_marginStart="10dp"
-        android:layout_marginLeft="10dp"
+        android:layout_marginLeft="5dp"
         android:layout_marginTop="5dp"
         android:layout_marginEnd="10dp"
         android:layout_marginRight="10dp"
@@ -49,18 +49,35 @@
 
         <com.rengwuxian.materialedittext.MaterialEditText
             android:id="@+id/edtSearch"
-            android:layout_width="250dp"
-            android:layout_height="wrap_content"
+            android:layout_width="239dp"
+            android:layout_height="match_parent"
             android:layout_below="@+id/txtTenKhachHang"
             android:layout_marginRight="10dp"
-            android:hint="Nhập tên khách hàng"
+            android:hint="Nhập tên"
             android:inputType="text" />
 
         <Button
             android:id="@+id/btnSearch"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Tìm kiếm" />
+            android:layout_width="75dp"
+            android:layout_height="34dp"
+            android:background="#1f7ed0"
+            android:text="Tìm kiếm"
+            android:textColor="#ffffff" />
+
+        <ImageButton
+            android:id="@+id/btnClear"
+            android:layout_width="40dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0"
+            android:background="@null"
+            android:contentDescription="@string/place_autocomplete_clear_button"
+            android:padding="@dimen/place_autocomplete_button_padding"
+            android:src="@drawable/places_ic_clear" />
+        <!--        <Button-->
+        <!--            android:id="@+id/btnClear"-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:background="@drawable/places_ic_clear"/>-->
     </LinearLayout>
 
     <ListView

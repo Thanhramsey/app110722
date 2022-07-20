@@ -18,6 +18,7 @@ import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -40,11 +41,13 @@ import com.vnpt.room.LoaiPhi;
 import com.vnpt.room.Product;
 import com.vnpt.room.Xa;
 import com.vnpt.staffhddt.DetailsActivity;
+import com.vnpt.staffhddt.LoginActivity;
 import com.vnpt.staffhddt.MainPos58Activity;
 import com.vnpt.staffhddt.R;
 import com.vnpt.staffhddt.fragment.BaseFragment;
 import com.vnpt.utils.DialogUtils;
 import com.vnpt.utils.StoreSharePreferences;
+import com.vnpt.utils.StringBienLai;
 import com.vnpt.webservice.AppServices;
 
 import java.io.Serializable;
@@ -69,6 +72,7 @@ public class XuatVeXePos58Fragment extends BaseFragment implements View.OnClickL
 //    MaterialEditText edtSoLuong, edtBSX;
 //    Button btnXuatBL, btnInThu, btnCheckTB;
     Button btnInThu,btnSearch;
+    ImageButton btnClear;
     MaterialEditText edtSearch;
 //    TextView txtCompanyInfo;
     private AwesomeProgressDialog dg;
@@ -124,6 +128,7 @@ public class XuatVeXePos58Fragment extends BaseFragment implements View.OnClickL
         spPhuong = layout.findViewById(R.id.spPhuong);
         btnInThu = layout.findViewById(R.id.btnInThu);
         btnSearch =layout.findViewById(R.id.btnSearch);
+        btnClear = layout.findViewById(R.id.btnClear);
         edtSearch = layout.findViewById(R.id.edtSearch);
         listViewProduct = layout.findViewById(R.id.listproduct);
 
@@ -154,6 +159,7 @@ public class XuatVeXePos58Fragment extends BaseFragment implements View.OnClickL
 //        btnXuatBL.setOnClickListener(this);
         btnInThu.setOnClickListener(this);
         btnSearch.setOnClickListener(this);
+        btnClear.setOnClickListener(this);
 //        btnCheckTB.setOnClickListener(this);
 
         spMenhGia.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -329,13 +335,20 @@ public class XuatVeXePos58Fragment extends BaseFragment implements View.OnClickL
                 searhKhachHang();
                 break;
             }
+            case R.id.btnClear:{
+                edtSearch.setText("");
+                searhKhachHang();
+                break;
+            }
         }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void searhKhachHang(){
         String searchText = edtSearch.getText().toString().trim();
-        List<KhachHang> khachHangSearch = khachHangList.stream().filter(p -> p.getNAME().trim().toLowerCase().contains(searchText.trim().toLowerCase())).collect(Collectors.toList());
+        String searchText2 = StringBienLai.removeAccent(searchText);
+        List<KhachHang> khachHangSearch = khachHangList.stream().filter(p ->
+                StringBienLai.removeAccent(p.getNAME().substring(p.getNAME().lastIndexOf(',') + 1).trim().toLowerCase()).contains(searchText2.trim().toLowerCase())).collect(Collectors.toList());
         if(khachHangSearch.size()>0 && khachHangSearch != null)
         {
             listKhachHang = new ArrayList<>();
@@ -542,7 +555,7 @@ public class XuatVeXePos58Fragment extends BaseFragment implements View.OnClickL
 
     private void loadPhuong(int id) {
         ApiClient apiClient2 = AppDataHelper.getApiClient2();
-        apiClient2.getPhuong(id).enqueue(new Callback<List<Xa>>() {
+        apiClient2.getPhuong(id, StoreSharePreferences.getInstance(getContext()).loadStringSavedPreferences(Common.KEY_USER_NAME)).enqueue(new Callback<List<Xa>>() {
             @Override
             public void onResponse(Call<List<Xa>> call, Response<List<Xa>> response) {
                 //Toast.makeText(LoginActivity.this, response.toString(), Toast.LENGTH_LONG).show();
@@ -550,6 +563,7 @@ public class XuatVeXePos58Fragment extends BaseFragment implements View.OnClickL
                 if (phuongList != null && phuongList.size() > 0) {
                     ArrayAdapter<Xa> adapter = new ArrayAdapter<Xa>(getContext(),
                             android.R.layout.simple_dropdown_item_1line, phuongList);
+//                    phuongList = filterPhuong(phuongList);
                     spPhuong.setAdapter(adapter);
                 } else {
                     ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(),
@@ -565,6 +579,12 @@ public class XuatVeXePos58Fragment extends BaseFragment implements View.OnClickL
             }
         });
     }
+//
+//    @RequiresApi(api = Build.VERSION_CODES.N)
+//    public List<Xa> filterPhuong(List<Xa> phuong){
+//        List<Xa> phuongFilter = (List<Xa>) phuong.stream().filter(p -> p.getUSERNAME() == Common.KEY_USER_NAME);
+//        return phuongFilter;
+//    }
 
     private void loadKhachHang(int id) {
         ApiClient apiClient2 = AppDataHelper.getApiClient2();
@@ -724,7 +744,11 @@ public class XuatVeXePos58Fragment extends BaseFragment implements View.OnClickL
             //Bind sữ liệu phần tử vào View
             KhachHang khachHang = (KhachHang) getItem(position);
             ((TextView) viewProduct.findViewById(R.id.idproduct)).setText(String.format("STT : %d", khachHang.getID()));
-            ((TextView) viewProduct.findViewById(R.id.nameproduct)).setText(String.format("Tên KH : %s", khachHang.getNAME()));
+            if(khachHang.getNAME().length() == 0 && khachHang.getCUSNAME().length() > 0){
+                ((TextView) viewProduct.findViewById(R.id.nameproduct)).setText(String.format("Tên KH : %s", khachHang.getCUSNAME()));
+            }else{
+                ((TextView) viewProduct.findViewById(R.id.nameproduct)).setText(String.format("Tên KH : %s", khachHang.getNAME()));
+            }
             ((TextView) viewProduct.findViewById(R.id.diachi)).setText(String.format("Địa chỉ : %s", khachHang.getDIACHI()));
             ((TextView) viewProduct.findViewById(R.id.priceproduct)).setText(String.format("Mệnh giá: %d", khachHang.getSOTIEN()));
 

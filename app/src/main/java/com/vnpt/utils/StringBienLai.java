@@ -1,5 +1,8 @@
 package com.vnpt.utils;
 
+import java.text.Normalizer;
+import java.util.regex.Pattern;
+
 public class StringBienLai {
 
     private static final String[] MANG_SO = { "không", "một", "hai", "ba", "bốn", "năm", "sáu", "bảy", "tám", "chín" };
@@ -135,5 +138,12 @@ public class StringBienLai {
     private static String genKey (String userName){
         String key = "BL" + userName + System.currentTimeMillis();
         return key;
+    }
+
+    public static String removeAccent(String s) {
+
+        String temp = Normalizer.normalize(s, Normalizer.Form.NFD);
+        Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
+        return pattern.matcher(temp).replaceAll("");
     }
 }

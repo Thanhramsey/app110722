@@ -158,35 +158,55 @@
         android:inputType="number"
         android:text="1" />
 
-    <Button
-        android:id="@+id/btnCheck"
-        android:layout_width="match_parent"
+    <LinearLayout
+        android:id="@+id/layout1"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/edtSoLuongThang"
-        android:layout_marginTop="0dp"
-        android:text="Check thiết bị" />
+        android:layout_marginStart="10dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="5dp"
+        android:background="@android:color/transparent"
+        android:orientation="horizontal">
 
-    <Button
-        android:id="@+id/btnInThu"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/btnCheck"
-        android:layout_marginTop="0dp"
-        android:text="In thử" />
+        <Button
+            android:id="@+id/btnCheck"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="0dp"
+            android:layout_marginRight="10dp"
+            android:background="#f39c12"
+            android:text="Check thiết bị"
+            android:textColor="#ffffff" />
 
-    <Button
-        android:id="@+id/btnXuatBienLai"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="0dp"
-        android:layout_below="@+id/btnInThu"
-        android:text="Xuất vé" />
+        <Button
+            android:id="@+id/btnInThu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="0dp"
+            android:layout_marginRight="10dp"
+            android:background="#367fa9"
+            android:text="In thử"
+            android:textColor="#ffffff" />
+
+        <Button
+            android:id="@+id/btnXuatBienLai"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="0dp"
+            android:background="#00a65a"
+            android:text="Xuất vé"
+            android:textColor="#ffffff" />
+    </LinearLayout>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/btn_scan"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/btnXuatBienLai"
+        android:layout_below="@+id/layout1"
         android:layout_gravity="bottom|right"
         android:layout_margin="16dp"
         android:layout_alignParentRight="true"
