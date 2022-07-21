@@ -33,19 +33,22 @@
         android:id="@+id/txtMenhGia"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textColor="@color/red"
         android:text="Mệnh giá:" />
 
     <Spinner
         android:id="@+id/spMenhGia"
+        style="@style/spinner_style"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="45dp"
         android:layout_below="@+id/txtMenhGia" />
 
     <TextView
         android:id="@+id/txtSoLuong"
-        android:layout_below="@+id/spMenhGia"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/spMenhGia"
+        android:textColor="@color/red"
         android:text="Số lượng" />
 
     <com.rengwuxian.materialedittext.MaterialEditText
@@ -58,29 +61,45 @@
         android:hint="Nhập số lượng" />
 
 
-    <Button
-        android:id="@+id/btnCheck"
-        android:text="Check thiết bị"
-        android:layout_width="match_parent"
+    <LinearLayout
+        android:id="@+id/layout4"
+        android:layout_width="394dp"
+        android:layout_height="62dp"
         android:layout_below="@+id/edtSoLuong"
-        android:layout_height="wrap_content"/>
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal">
 
-    <Button
-        android:id="@+id/btnInThu"
-        android:layout_below="@+id/btnCheck"
-        android:text="In thử"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        <Button
+            android:id="@+id/btnCheck"
+            android:layout_width="199dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/btnXuatBienLai"
+            android:layout_marginTop="0dp"
+            android:layout_marginRight="10dp"
+            android:background="#377D71"
+            android:text="Check thiết bị"
+            android:textColor="#ffffff" />
 
+        <Button
+            android:id="@+id/btnInThu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/btnCheck"
+            android:layout_marginTop="0dp"
+            android:background="#EC994B"
+            android:textColor="#ffffff"
+            android:text="In thử" />
+    </LinearLayout>
 
     <Button
         android:id="@+id/btnXuatBienLai"
-        android:layout_below="@+id/btnInThu"
-        android:text="Xuất vé"
-
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        />
+        android:layout_below="@+id/layout4"
+        android:layout_marginTop="0dp"
+        android:background="#38618c"
+        android:textColor="#ffffff"
+        android:text="Xuất vé" />
 
 
     <RelativeLayout

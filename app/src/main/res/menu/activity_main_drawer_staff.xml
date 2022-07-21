@@ -37,7 +37,7 @@
                 <!--android:visible="false"/>-->
         <!--</menu>-->
     <!--</item>-->
-    <item android:title="@string/text_system">
+    <item android:title="Màn hình">
         <menu>
             <group android:checkableBehavior="single">
                 <item android:id="@+id/nav_vemenhgia"
