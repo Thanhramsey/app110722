@@ -123,6 +123,13 @@ public class MainEr58AiActivity extends BaseActivity
         navigationView.getMenu().clear(); //clear old inflated items.
         navigationView.inflateMenu(R.menu.activity_main_drawer_staff);
         navigationView.getMenu().getItem(0).setChecked(true);
+
+        Menu nav_Menu = navigationView.getMenu();
+        nav_Menu.findItem(R.id.nav_vexe).setVisible(false);
+        nav_Menu.findItem(R.id.nav_vexekhach).setVisible(false);
+        nav_Menu.findItem(R.id.nav_hddt).setVisible(false);
+        nav_Menu.findItem(R.id.nav_statistics).setVisible(false);
+
         navigationView.setNavigationItemSelectedListener(this);
         try {
             String name = StoreSharePreferences.getInstance(
