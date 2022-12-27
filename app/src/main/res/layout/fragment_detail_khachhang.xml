@@ -94,22 +94,7 @@
         android:inputType="text" />
 
     <TextView
-        android:id="@+id/txtNam"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
         android:layout_below="@+id/edtMenhGia"
-        android:layout_marginTop="10dp"
-        android:text="Nhập năm:" />
-
-    <EditText
-        android:id="@+id/tuNam"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/txtNam"
-        android:hint="Nhập Năm" />
-
-    <TextView
-        android:layout_below="@+id/tuNam"
         android:layout_marginTop="10dp"
         android:id="@+id/txtTuThang"
         android:layout_width="match_parent"
@@ -122,8 +107,15 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/txtTuThang"
         android:spinnerMode="dropdown" />
-    <TextView
+
+    <EditText
+        android:id="@+id/tuNam"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_below="@+id/tuThang"
+        android:hint="Từ Năm" />
+    <TextView
+        android:layout_below="@+id/tuNam"
         android:layout_marginTop="10dp"
         android:id="@+id/txtDenThang"
         android:layout_width="match_parent"
