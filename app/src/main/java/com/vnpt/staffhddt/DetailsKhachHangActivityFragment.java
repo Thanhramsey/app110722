@@ -117,27 +117,6 @@ public class DetailsKhachHangActivityFragment extends BaseFragment implements Vi
 
     private int type;
 
-
-    public static com.vnpt.printproject.pos58bus.BluetoothService mPOSPrinter = null;
-    // Name of the connected device
-    private String mConnectedDeviceName = null;
-    // Local Bluetooth adapter
-    private BluetoothAdapter mBluetoothAdapter = null;
-    FloatingActionButton btnScan;
-
-    /******************************************************************************************************/
-    // Message types sent from the BluetoothService Handler
-    public static final int MESSAGE_STATE_CHANGE = 1;
-    public static final int MESSAGE_READ = 2;
-    public static final int MESSAGE_WRITE = 3;
-    public static final int MESSAGE_DEVICE_NAME = 4;
-    public static final int MESSAGE_TOAST = 5;
-    public static final int MESSAGE_CONNECTION_LOST = 6;
-    public static final int MESSAGE_UNABLE_CONNECT = 7;
-    /*******************************************************************************************************/
-    private static final int REQUEST_ENABLE_BT = 2;
-    private static final int REQUEST_CONNECT_DEVICE = 1;
-
     public DetailsKhachHangActivityFragment() {
         // Required empty public constructor
     }
@@ -153,19 +132,6 @@ public class DetailsKhachHangActivityFragment extends BaseFragment implements Vi
             loaiPhiList = (List<LoaiPhi>) args.getSerializable("KEY_DATA_PHI");
             loaiPhi = loaiPhiList.get(0);
         }
-        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (mBluetoothAdapter == null) {
-            Toast.makeText(getContext(), "Bluetooth is not available", Toast.LENGTH_SHORT).show();
-        }
-        if (!mBluetoothAdapter.isEnabled()) {
-            Intent enableIntent = new Intent(
-                    BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
-            // Otherwise, setup the session
-        } else {
-            if (mPOSPrinter == null)
-                KeyListenerInit();
-        }
         setupUI(layout.findViewById(R.id.layout_frament_detaikhachhang));
         init(layout);
 
@@ -177,63 +143,6 @@ public class DetailsKhachHangActivityFragment extends BaseFragment implements Vi
 
         return layout;
     }
-
-    private void KeyListenerInit() {
-        mPOSPrinter = new com.vnpt.printproject.pos58bus.BluetoothService(getContext(), mHandler);
-    }
-    @SuppressLint("HandlerLeak")
-    private final Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case MESSAGE_STATE_CHANGE:
-                    switch (msg.arg1) {
-                        case com.vnpt.printproject.pos58bus.BluetoothService.STATE_CONNECTED:
-                            Toast.makeText(getContext(), "Đã kết nối",
-                                    Toast.LENGTH_SHORT).show();
-                            break;
-                        case com.vnpt.printproject.pos58bus.BluetoothService.STATE_CONNECTING:
-                            Toast.makeText(getContext(), "Đang kết nối",
-                                    Toast.LENGTH_SHORT).show();
-                            break;
-                        case com.vnpt.printproject.pos58bus.BluetoothService.STATE_LISTEN:
-                        case BluetoothService.STATE_NONE:
-                            Toast.makeText(getContext(), "Đang lắng nghe",
-                                    Toast.LENGTH_SHORT).show();
-                            break;
-                    }
-                    break;
-                case MESSAGE_WRITE:
-
-                    break;
-                case MESSAGE_READ:
-
-                    break;
-                case MESSAGE_DEVICE_NAME:
-                    // save the connected device's name
-                    mConnectedDeviceName = msg.getData().getString(DEVICE_NAME);
-                    Toast.makeText(getContext(),
-                            "Đã kết nối",
-                            Toast.LENGTH_SHORT).show();
-                    break;
-                case MESSAGE_TOAST:
-                    Toast.makeText(getContext(),
-                            msg.getData().getString(TOAST), Toast.LENGTH_SHORT)
-                            .show();
-                    break;
-                case MESSAGE_CONNECTION_LOST:    //蓝牙已断开连接
-                    Toast.makeText(getContext(), "Mất kết nối thiết bị",
-                            Toast.LENGTH_SHORT).show();
-
-                    break;
-                case MESSAGE_UNABLE_CONNECT:     //无法连接设备
-                    Toast.makeText(getContext(), "Không thể kết nối với thiết bị",
-                            Toast.LENGTH_SHORT).show();
-                    break;
-            }
-        }
-    };
-
     @Override
     protected void init(View layout) {
 //        spMenhGia = layout.findViewById(R.id.spMenhGia);
@@ -257,12 +166,9 @@ public class DetailsKhachHangActivityFragment extends BaseFragment implements Vi
         btnXuatBL = layout.findViewById(R.id.btnXuatBienLai);
         btnInThu = layout.findViewById(R.id.btnInThu);
         btnCheckTB = layout.findViewById(R.id.btnCheck);
+        btnCheckTB.setVisibility(View.GONE);
         txtTenCongTy = layout.findViewById(R.id.txtTenCongTy);
         txtMst = layout.findViewById(R.id.txtMst);
-
-        btnScan = (FloatingActionButton) layout.findViewById(R.id.btn_scan);
-        btnScan.setOnClickListener(this);
-        btnScan.setVisibility(View.GONE);
 //        txtCompanyInfo = layout.findViewById(R.id.txtCompanyInfo);
 
         tuNam.setText(String.valueOf(Calendar.getInstance().get(Calendar.YEAR)));
@@ -271,6 +177,7 @@ public class DetailsKhachHangActivityFragment extends BaseFragment implements Vi
 //        denNam.setEnabled(false);
         tuNam.setVisibility(View.GONE);
         denNam.setVisibility(View.GONE);
+//        btnCheckTB.setVisibility(View.GONE);
         edtTenCongTy.setEnabled(false);
         edtTenKhachHang.setEnabled(false);
         edtMst.setEnabled(false);
@@ -521,56 +428,7 @@ public class DetailsKhachHangActivityFragment extends BaseFragment implements Vi
 
                 break;
             }
-            case R.id.btnCheck: {
-                checkPrinter();
-                break;
-            }
-            case R.id.btn_scan: {
-                Intent serverIntent = new Intent(getContext(), DeviceListActivity.class);
-                startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE);
-                break;
-            }
         }
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        // check if the request code is same as what is passed  here it is 2
-
-        switch (requestCode) {
-            case REQUEST_CONNECT_DEVICE:{
-                // When DeviceListActivity returns with a device to connect
-                if (resultCode == Activity.RESULT_OK) {
-                    // Get the device MAC address
-                    String address = data.getExtras().getString(
-                            com.vnpt.printproject.pos58bus.DeviceListActivity.EXTRA_DEVICE_ADDRESS);
-                    // Get the BLuetoothDevice object
-                    if (BluetoothAdapter.checkBluetoothAddress(address)) {
-                        BluetoothDevice device = mBluetoothAdapter
-                                .getRemoteDevice(address);
-                        // Attempt to connect to the device
-                        mPOSPrinter.connect(device);
-                    }
-                }
-                break;
-            }
-            case REQUEST_ENABLE_BT:{
-                // When the request to enable Bluetooth returns
-                if (resultCode == Activity.RESULT_OK) {
-                    // Bluetooth is now enabled, so set up a session
-                    KeyListenerInit();
-                } else {
-                    // User did not enable Bluetooth or an error occured
-                    Log.d(TAG, "BT not enabled");
-                    Toast.makeText(getContext(), R.string.bt_not_enabled_leaving,
-                            Toast.LENGTH_SHORT).show();
-                }
-                break;
-            }
-        }
-
-//        super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
@@ -910,20 +768,6 @@ public class DetailsKhachHangActivityFragment extends BaseFragment implements Vi
             } else {
                 Toast.makeText(getContext(), "Vui lòng cấp quyền cho ứng dụng", Toast.LENGTH_SHORT).show();
             }
-        }
-    }
-
-    private void checkPrinter() {
-        if (mPOSPrinter.getState() != com.vnpt.printproject.pos58bus.BluetoothService.STATE_CONNECTED) {
-//            Toast.makeText(getContext(), "Bạn chưa kết nối Bluetooth", Toast.LENGTH_SHORT)
-//                    .show();
-            Intent serverIntent = new Intent(getContext(), DeviceListActivity.class);
-            startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE);
-//            break;
-        } else {
-            Toast.makeText(getContext(), "Đã kết nối Bluetooth với thiết bị", Toast.LENGTH_SHORT)
-                    .show();
-
         }
     }
 }
