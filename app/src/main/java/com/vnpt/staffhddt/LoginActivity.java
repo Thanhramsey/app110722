@@ -265,7 +265,6 @@ public class LoginActivity extends BaseActivity implements OnEventControlListene
                 CompanyInfo companyInfo = response.body();
                 if (companyInfo != null) {
                     loadListFeeData(mst);
-
                     StoreSharePreferences.getInstance(LoginActivity.this).saveStringPreferences(Common.KEY_COMPANY_NAME, companyInfo.getNAME());
                     StoreSharePreferences.getInstance(LoginActivity.this).saveStringPreferences(Common.KEY_COMPANY_URL, companyInfo.getURL());
                     StoreSharePreferences.getInstance(LoginActivity.this).saveStringPreferences(Common.KEY_COMPANY_PORTAL, companyInfo.getPORTAL());

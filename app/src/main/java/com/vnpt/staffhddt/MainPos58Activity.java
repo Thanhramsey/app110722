@@ -47,6 +47,7 @@ import com.vnpt.staffhddt.dialogs.SingleChoiceDialog;
 import com.vnpt.staffhddt.pos58.XuatHDDTPos58Fragment;
 import com.vnpt.staffhddt.pos58.XuatVeGopPos58Fragment;
 import com.vnpt.staffhddt.pos58.XuatVeGopDiaChiPos58Fragment;
+import com.vnpt.staffhddt.pos58.XuatVeKichThuocPos58Fragment;
 import com.vnpt.staffhddt.pos58.XuatVeMenhGiaPos58Fragment;
 import com.vnpt.staffhddt.pos58.XuatVeXeKhachPos58Fragment;
 import com.vnpt.staffhddt.pos58.XuatVeXePos58Fragment;
@@ -331,6 +332,8 @@ public class MainPos58Activity extends BaseActivity
             startActivity(intent);
         } else if (id == R.id.nav_vemenhgia) {
             showHome(Common.STATUS_VE_MENH_GIA, TYPE);
+        } else if (id == R.id.nav_vekichthuoc) {
+            showHome(Common.STATUS_VE_KICH_THUOC, TYPE);
         } else if (id == R.id.nav_vexe) {
             showHome(Common.STATUS_VE_XE, TYPE);
         } else if (id == R.id.nav_vexekhach) {
@@ -503,7 +506,13 @@ public class MainPos58Activity extends BaseActivity
             bundle.putInt(Common.KEY_COMPANY_TYPE, type);
             fragment.setArguments(bundle);
             setFragmentContent(fragment, XuatVeMenhGiaPos58Fragment.TAG, R.id.root_layout);
-        } else if (status == Common.STATUS_VE_XE) {
+        } else if (status == Common.STATUS_VE_KICH_THUOC) {
+            XuatVeKichThuocPos58Fragment fragment = new XuatVeKichThuocPos58Fragment();
+            Bundle bundle = new Bundle();
+            bundle.putInt(Common.KEY_COMPANY_TYPE, type);
+            fragment.setArguments(bundle);
+            setFragmentContent(fragment, XuatVeKichThuocPos58Fragment.TAG, R.id.root_layout);
+        }else if (status == Common.STATUS_VE_XE) {
             XuatVeXePos58Fragment fragment = new XuatVeXePos58Fragment();
             Bundle bundle = new Bundle();
             bundle.putInt(Common.KEY_COMPANY_TYPE, type);

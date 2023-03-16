@@ -43,6 +43,9 @@
                 <item android:id="@+id/nav_vemenhgia"
                     android:icon="@drawable/ic_print"
                     android:title="In vé mệnh giá"/>
+                <item android:id="@+id/nav_vekichthuoc"
+                    android:icon="@drawable/ic_print"
+                    android:title="In vé kích thước"/>
                 <item android:id="@+id/nav_vexe"
                     android:icon="@drawable/ic_print"
                     android:title="In vé gửi xe"/>

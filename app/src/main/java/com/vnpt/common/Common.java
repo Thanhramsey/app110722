@@ -26,6 +26,8 @@ public class Common {
     public static final int PRINT_POS_58 = 1;
 
     public static final int STATUS_VE_MENH_GIA = 1;
+
+    public static final int STATUS_VE_KICH_THUOC = 8;
     public static final int STATUS_VE_XE = 2;
     public static final int STATUS_VE_IN_GOP = 3;
     public static final int STATUS_VE_XE_KHACH = 4;
