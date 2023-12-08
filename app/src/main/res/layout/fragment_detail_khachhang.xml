@@ -103,8 +103,9 @@
 
     <Spinner
         android:id="@+id/tuThang"
+        style="@style/spinner_style_2"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
         android:layout_below="@+id/txtTuThang"
         android:spinnerMode="dropdown" />
 
@@ -124,9 +125,10 @@
     <Spinner
         android:id="@+id/denThang"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
         android:layout_below="@+id/txtDenThang"
-        android:spinnerMode="dropdown" />
+        android:spinnerMode="dropdown"
+        style="@style/spinner_style_2"/>
 
     <!--    <EditText-->
     <!--        android:id="@+id/denThang"-->

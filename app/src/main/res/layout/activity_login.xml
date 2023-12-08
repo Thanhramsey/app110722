@@ -115,12 +115,13 @@
                     android:gravity="center"
                     android:text="@string/app_name"
                     android:textAllCaps="true"
-                    android:textColor="@color/black"
+                    android:textColor="#367fa9"
+                    android:textStyle="bold"
                     android:textSize="@dimen/font_normal_big" />
 
                 <ImageView
                     android:layout_width="120dp"
-                    android:layout_height="100dp"
+                    android:layout_height="151dp"
                     android:contentDescription="@string/app_name"
                     android:scaleType="fitXY"
                     android:src="@drawable/logo_vnpt" />
@@ -248,7 +249,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
                     android:text="@string/action_sign_in"
-                    android:textColor="@color/black"
+                    android:background="#367fa9"
+                    android:textColor="@color/white"
                     android:textStyle="bold" />
 
             </LinearLayout>

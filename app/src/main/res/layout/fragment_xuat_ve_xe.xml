@@ -49,7 +49,7 @@
 
         <com.rengwuxian.materialedittext.MaterialEditText
             android:id="@+id/edtSearch"
-            android:layout_width="239dp"
+            android:layout_width="225dp"
             android:layout_height="match_parent"
             android:layout_below="@+id/txtTenKhachHang"
             android:layout_marginRight="10dp"

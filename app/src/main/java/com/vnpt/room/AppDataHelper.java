@@ -67,6 +67,7 @@ public class AppDataHelper {
         if (retrofit2 == null) {
             retrofit2 = new Retrofit.Builder()
                     .baseUrl("http://bqlctdtchuse.vn/")
+//                    .baseUrl("http://tramnuockongchro.com.vn/")
                     .client(getUnsafeOkHttpClient().build())
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();

@@ -886,11 +886,7 @@ public class LoginActivity extends BaseActivity implements OnEventControlListene
 //            StoreSharePreferences.getInstance(LoginActivity.this).saveIntPreferences(Common.KEY_FROM_WHICH_SCREEN, Common.STATUS_NOT_PAYMENT);
             int printer = StoreSharePreferences.getInstance(LoginActivity.this).loadIntegerSavedPreferences(Common.KEY_PRINTER);
 //            Intent intent = null;
-            if (printer == Common.PRINT_ER_58) {
-                intent = new Intent(LoginActivity.this, MainEr58AiActivity.class);
-            } else {
-                intent = new Intent(LoginActivity.this, MainPos58Activity.class);
-            }
+            intent = new Intent(LoginActivity.this, MainPos58Activity.class);
 //            Bundle bundle = new Bundle();
 //            bundle.putInt(Common.KEY_FROM_WHICH_SCREEN, StoreSharePreferences.getInstance(LoginActivity.this).loadIntegerSavedPreferences(Common.KEY_COMPANY_STATUS));
 //            intent.putExtra("", bundle);

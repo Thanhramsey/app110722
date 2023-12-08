@@ -34,6 +34,7 @@ import com.vnpt.printproject.pos58bus.command.sdk.Command;
 import com.vnpt.printproject.pos58bus.command.sdk.PrintPicture;
 import com.vnpt.printproject.pos58bus.command.sdk.PrinterCommand;
 import com.vnpt.room.LoaiPhi;
+import com.vnpt.staffhddt.MainEr58AiActivity;
 import com.vnpt.staffhddt.MainPos58Activity;
 import com.vnpt.staffhddt.R;
 import com.vnpt.staffhddt.fragment.BaseFragment;
@@ -88,7 +89,7 @@ public class XuatVeXeFragment extends BaseFragment implements View.OnClickListen
 
         setEventForMembers();
         setValueForMembers();
-        ((MainPos58Activity) getActivity()).showProccessbar(false);
+        ((MainEr58AiActivity) getActivity()).showProccessbar(false);
 
         preferences = StoreSharePreferences.getInstance(getContext());
 
