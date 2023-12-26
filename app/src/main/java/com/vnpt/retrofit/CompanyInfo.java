@@ -14,7 +14,9 @@ public class CompanyInfo implements Serializable {
     private Integer STATUS;
     private Integer TYPE;
 
-    public CompanyInfo(Integer ID, String MST, String NAME, String URL, String PORTAL, String USER, String PASS, Integer STATUS, Integer TYPE) {
+    private String WEBSITE;
+
+    public CompanyInfo(Integer ID, String MST, String NAME, String URL, String PORTAL, String USER, String PASS, Integer STATUS, Integer TYPE, String WEBSITE) {
         this.ID = ID;
         this.MST = MST;
         this.NAME = NAME;
@@ -24,6 +26,7 @@ public class CompanyInfo implements Serializable {
         this.PASS = PASS;
         this.STATUS = STATUS;
         this.TYPE = TYPE;
+        this.WEBSITE = WEBSITE;
     }
 
     public CompanyInfo() {
@@ -99,5 +102,13 @@ public class CompanyInfo implements Serializable {
 
     public void setSTATUS(Integer STATUS) {
         this.STATUS = STATUS;
+    }
+
+    public String getWEBSITE() {
+        return WEBSITE;
+    }
+
+    public void setWEBSITE(String WEBSITE) {
+        this.WEBSITE = WEBSITE;
     }
 }

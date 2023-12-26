@@ -13,137 +13,218 @@
         android:textStyle="bold"
         android:layout_centerHorizontal="true"
         android:textColor="@android:color/holo_red_light"
-        android:text="Màn hình in vé thu tiền rác"
+        android:text="In phiếu thu tiền xăng dầu"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
-    <Spinner
-        android:id="@+id/spMenhGia"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:layout_below="@+id/txtInVeGop"
-        android:spinnerMode="dropdown"
-        style="@style/spinner_style"/>
-
-    <Spinner
-        android:id="@+id/spPhuong"
-        style="@style/spinner_style"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:layout_below="@+id/spMenhGia" />
 
     <LinearLayout
         android:id="@+id/layout1"
         android:layout_width="match_parent"
-        android:layout_height="44dp"
-        android:layout_below="@+id/spPhuong"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/txtInVeGop"
         android:layout_marginStart="10dp"
         android:layout_marginLeft="5dp"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="20dp"
         android:layout_marginEnd="10dp"
         android:layout_marginRight="10dp"
         android:layout_marginBottom="5dp"
         android:background="@android:color/transparent"
-
         android:orientation="horizontal">
 
-        <com.rengwuxian.materialedittext.MaterialEditText
-            android:id="@+id/edtSearch"
-            android:layout_width="225dp"
-            android:layout_height="match_parent"
-            android:layout_below="@+id/txtTenKhachHang"
+    <RadioGroup
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/radio_a"
+            android:text="Trụ 1"
+            android:checked="true"
             android:layout_marginRight="10dp"
-            android:hint="Nhập tên"
-            android:inputType="text" />
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <RadioButton
+            android:id="@+id/radio_b"
+            android:text="Trụ 2"
+            android:layout_marginRight="10dp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <RadioButton
+            android:id="@+id/radio_c"
+            android:text="Trụ 3"
+            android:layout_marginRight="10dp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <RadioButton
+            android:id="@+id/radio_d"
+            android:text="Trụ 4"
+            android:layout_marginRight="10dp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:enabled="false" />
+
+        <RadioButton
+            android:id="@+id/radio_e"
+            android:text="Trụ 5"
+            android:layout_marginRight="10dp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:enabled="false" />
+    </RadioGroup>
+</LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layout2"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:layout_below="@+id/layout1"
+        android:layout_marginStart="10dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="5dp"
+        android:background="@android:color/transparent"
+        android:orientation="horizontal">
 
         <Button
-            android:id="@+id/btnSearch"
-            android:layout_width="75dp"
-            android:layout_height="34dp"
-            android:background="#1f7ed0"
-            android:text="Tìm kiếm"
-            android:textColor="#ffffff" />
-
-        <ImageButton
-            android:id="@+id/btnClear"
-            android:layout_width="40dp"
+            android:id="@+id/button1"
+            android:layout_width="0dp"
+            android:layout_marginRight="10dp"
             android:layout_height="match_parent"
-            android:layout_weight="0"
-            android:background="@null"
-            android:contentDescription="@string/place_autocomplete_clear_button"
-            android:padding="@dimen/place_autocomplete_button_padding"
-            android:src="@drawable/places_ic_clear" />
-        <!--        <Button-->
-        <!--            android:id="@+id/btnClear"-->
-        <!--            android:layout_width="match_parent"-->
-        <!--            android:layout_height="wrap_content"-->
-        <!--            android:background="@drawable/places_ic_clear"/>-->
+            android:layout_weight="1"
+            android:text="100.000vnđ"
+            android:background="#FF5733"
+            />
+
+        <Button
+            android:id="@+id/button2"
+            android:layout_width="0dp"
+            android:layout_marginRight="10dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="75.000vnđ"
+            android:background="#3498db" />
+
+        <Button
+            android:id="@+id/button3"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="50.000vnđ"
+            android:background="#27ae60" />
+
     </LinearLayout>
 
-    <ListView
-        android:id="@+id/listproduct"
+    <LinearLayout
+        android:id="@+id/layout3"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/layout1" />
-
-<!--    <TextView-->
-<!--        android:id="@+id/txtBSX"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_below="@+id/spMenhGia"-->
-<!--        android:text="BSX hoặc tên KH:" />-->
-
-<!--    <com.rengwuxian.materialedittext.MaterialEditText-->
-<!--        android:id="@+id/edtBSX"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_below="@+id/txtBSX"-->
-<!--        android:hint="Nhập biển số xe hoặc tên khách hàng" />-->
-
-<!--    <TextView-->
-<!--        android:id="@+id/txtSoLuong"-->
-<!--        android:layout_below="@+id/edtBSX"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:text="Số lượng" />-->
-
-<!--    <com.rengwuxian.materialedittext.MaterialEditText-->
-<!--        android:id="@+id/edtSoLuong"-->
-<!--        android:inputType="number"-->
-<!--        android:text="1"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_below="@+id/txtSoLuong"-->
-<!--        android:hint="Nhập số lượng" />-->
-
-
-<!--    <Button-->
-<!--        android:id="@+id/btnXuatBienLai"-->
-<!--        android:text="Xuất vé"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_below="@+id/edtSoLuong" />-->
-
-<!--    <RelativeLayout-->
-<!--        android:layout_alignParentBottom="true"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content">-->
-
-
-<!--        <Button-->
-<!--            android:id="@+id/btnCheck"-->
-<!--            android:text="Check thiết bị"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"/>-->
+        android:layout_height="44dp"
+        android:layout_below="@+id/layout2"
+        android:layout_marginStart="10dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="5dp"
+        android:background="@android:color/transparent"
+        android:orientation="horizontal">
 
         <Button
-            android:id="@+id/btnInThu"
-            android:layout_below="@+id/listproduct"
-            android:text="In thử"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:id="@+id/button4"
+            android:layout_width="0dp"
+            android:layout_marginRight="10dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="40.000vnđ"
+            android:background="#FF5733" />
+
+        <Button
+            android:id="@+id/button5"
+            android:layout_width="0dp"
+            android:layout_marginRight="10dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="30.000vnđ"
+            android:background="#3498db" />
+
+        <Button
+            android:id="@+id/button6"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="20.000vnđ"
+            android:background="#27ae60" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layout4"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:layout_below="@+id/layout3"
+        android:layout_marginStart="10dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="20dp"
+        android:background="@android:color/transparent"
+        android:orientation="horizontal">
+        <EditText
+            android:id="@+id/soTien"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:hint="Nhập số tiền"
+            android:background="#FFFFFF" /> <!-- Màu trắng, có thể điều chỉnh màu nền tùy ý -->
+
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="x 1000"
+            android:gravity="center_vertical" />
+
+        <Button
+            android:id="@+id/button7"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="Xuất hóa đơn"
+            android:background="#3498db" /> <!-- Màu xanh dương -->
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/txtDemo"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:layout_below="@+id/layout4"
+        android:layout_centerHorizontal="true"
+        android:textColor="@android:color/holo_red_light"
+        android:text=""
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
 
 <!--    </RelativeLayout>-->
+    <Button
+        android:id="@+id/btnCheck"
+        android:text="Check thiết bị"
+        android:layout_width="match_parent"
+        android:layout_below="@+id/txtDemo"
+        android:layout_height="wrap_content"
+        android:background="#E6CB19"/>
 
 </RelativeLayout>
 

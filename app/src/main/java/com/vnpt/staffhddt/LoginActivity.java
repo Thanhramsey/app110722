@@ -51,6 +51,8 @@ import com.vnpt.retrofit.CompanyInfo;
 import com.vnpt.room.AppDataHelper;
 import com.vnpt.room.LoaiPhi;
 import com.vnpt.room.LoaiPhiDAO;
+import com.vnpt.room.TruBom;
+import com.vnpt.room.TruBomDAO;
 import com.vnpt.room.Xa;
 import com.vnpt.room.XaDAO;
 import com.vnpt.utils.DateTimeUtil;
@@ -268,13 +270,16 @@ public class LoginActivity extends BaseActivity implements OnEventControlListene
                 CompanyInfo companyInfo = response.body();
                 if (companyInfo != null) {
                     loadListFeeData(mst);
-                    loadXa();
+                    //TODO
+                    String URL = companyInfo.getWEBSITE();
+                    loadTruBom(URL);
 
                     StoreSharePreferences.getInstance(LoginActivity.this).saveStringPreferences(Common.KEY_COMPANY_NAME, companyInfo.getNAME());
                     StoreSharePreferences.getInstance(LoginActivity.this).saveStringPreferences(Common.KEY_COMPANY_URL, companyInfo.getURL());
                     StoreSharePreferences.getInstance(LoginActivity.this).saveStringPreferences(Common.KEY_COMPANY_PORTAL, companyInfo.getPORTAL());
                     StoreSharePreferences.getInstance(LoginActivity.this).saveStringPreferences(Common.KEY_COMPANY_USER, companyInfo.getUSER());
                     StoreSharePreferences.getInstance(LoginActivity.this).saveStringPreferences(Common.KEY_COMPANY_PASS, companyInfo.getPASS());
+                    StoreSharePreferences.getInstance(LoginActivity.this).saveStringPreferences("WEBSITE", URL);
 //                    StoreSharePreferences.getInstance(LoginActivity.this).saveIntPreferences(Common.KEY_COMPANY_STATUS, companyInfo.getSTATUS());
                     //hard code cho chư sê
                     StoreSharePreferences.getInstance(LoginActivity.this).saveIntPreferences(Common.KEY_COMPANY_STATUS, 2);
@@ -313,8 +318,8 @@ public class LoginActivity extends BaseActivity implements OnEventControlListene
         });
     }
 
-    private void loadXa() {
-        ApiClient apiClient2 = AppDataHelper.getApiClient2();
+    private void loadXa(String url) {
+        ApiClient apiClient2 = AppDataHelper.getApiClient2(url);
         apiClient2.getXa().enqueue(new Callback<List<Xa>>() {
             @Override
             public void onResponse(Call<List<Xa>> call, Response<List<Xa>> response) {
@@ -327,6 +332,26 @@ public class LoginActivity extends BaseActivity implements OnEventControlListene
 
             @Override
             public void onFailure(Call<List<Xa>> call, Throwable t) {
+                showProgress(false);
+                Toast.makeText(LoginActivity.this, "Có lỗi xảy ra !", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void loadTruBom(String url) {
+        ApiClient apiClient2 = AppDataHelper.getApiClient2(url);
+        apiClient2.getThongTinTruBom().enqueue(new Callback<List<TruBom>>() {
+            @Override
+            public void onResponse(Call<List<TruBom>> call, Response<List<TruBom>> response) {
+                //Toast.makeText(LoginActivity.this, response.toString(), Toast.LENGTH_LONG).show();
+                List<TruBom> TruBomList = response.body();
+                new saveTruBomToDbTask(getApplicationContext()).execute(TruBomList);
+                StoreSharePreferences.getInstance(LoginActivity.this).saveIntPreferences(Common.KEY_FIRST_CONFIG, 1);
+                showProgress(false);
+            }
+
+            @Override
+            public void onFailure(Call<List<TruBom>> call, Throwable t) {
                 showProgress(false);
                 Toast.makeText(LoginActivity.this, "Có lỗi xảy ra !", Toast.LENGTH_SHORT).show();
             }
@@ -363,6 +388,45 @@ public class LoginActivity extends BaseActivity implements OnEventControlListene
         protected void onPostExecute(Integer integer) {
             super.onPostExecute(integer);
             Toast.makeText(mContext, "Load thành công " + integer + " xã", Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        protected void onCancelled() {
+            super.onCancelled();
+            Toast.makeText(LoginActivity.this, "Tiến trình bị huỷ !", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private class saveTruBomToDbTask extends AsyncTask<List<TruBom>, Void, Integer> {
+
+        private Context mContext;
+
+        public saveTruBomToDbTask(Context mContext) {
+            this.mContext = mContext;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Integer doInBackground(List<TruBom>... lists) {
+            final TruBomDAO truBomDAO = AppDataHelper.getAppDatabase(mContext).getTruBomDAO();
+            if (lists[0] != null && lists[0].size() > 0) {
+                truBomDAO.cleanTable();
+                for (TruBom truBom : lists[0]) {
+                    truBomDAO.insert(truBom);
+                }
+                return lists[0].size();
+            }
+            return 0;
+        }
+
+        @Override
+        protected void onPostExecute(Integer integer) {
+            super.onPostExecute(integer);
+            Toast.makeText(mContext, "Load thành công " + integer + " trụ", Toast.LENGTH_SHORT).show();
         }
 
         @Override
@@ -843,6 +907,7 @@ public class LoginActivity extends BaseActivity implements OnEventControlListene
             if (success == Common.DATA_SUCCESS) {
                 new LoadAllLoaiPhiTask(getBaseContext()).execute();
                 new LoadAllXaTask(getBaseContext()).execute();
+                new LoadAllTruBomTask(getBaseContext()).execute();
 
             } else if (success == Common.DATA_INVALIDATE) {
                 ToastMessageUtil.showToastShort(LoginActivity.this, getString(R.string.action_sign_in_failed_account));
@@ -948,6 +1013,43 @@ public class LoginActivity extends BaseActivity implements OnEventControlListene
         }
     }
 
+
+    private class LoadAllTruBomTask extends AsyncTask<Void, Void, List<TruBom>> {
+
+        private Context mContext;
+
+        public LoadAllTruBomTask(Context mContext) {
+            this.mContext = mContext;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            showProgress(true);
+        }
+
+        @Override
+        protected List<TruBom> doInBackground(Void... voids) {
+            TruBomDAO truBomDAO = AppDataHelper.getAppDatabase(mContext).getTruBomDAO();
+            return truBomDAO.getAllTruBom();
+        }
+
+        @Override
+        protected void onPostExecute(List<TruBom> TruBoms) {
+            super.onPostExecute(TruBoms);
+            showProgress(false);
+            intent.putExtra("KEY_TRUBOM", (Serializable) TruBoms);
+            startActivity(intent);
+            finish();
+        }
+
+        @Override
+        protected void onCancelled() {
+            super.onCancelled();
+            showProgress(false);
+            Toast.makeText(mContext, "Tiến trình bị huỷ ", Toast.LENGTH_SHORT).show();
+        }
+    }
     @Override
     public void onEvent(int eventType, View control, Object data) {
         super.onEvent(eventType, control, data);

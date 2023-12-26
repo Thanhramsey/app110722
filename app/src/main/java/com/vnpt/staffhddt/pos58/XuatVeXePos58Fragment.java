@@ -20,6 +20,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,7 +32,10 @@ import com.izettle.html2bitmap.content.WebViewContent;
 import com.rengwuxian.materialedittext.MaterialEditText;
 import com.vnpt.common.Common;
 import com.vnpt.common.ModelEvent;
+import com.vnpt.dto.BienLai;
 import com.vnpt.listener.OnEventControlListener;
+import com.vnpt.printproject.ImageUtils;
+import com.vnpt.printproject.QRCodeGenerator;
 import com.vnpt.printproject.pos58bus.command.sdk.Command;
 import com.vnpt.printproject.pos58bus.command.sdk.PrintPicture;
 import com.vnpt.printproject.pos58bus.command.sdk.PrinterCommand;
@@ -39,7 +44,10 @@ import com.vnpt.room.AppDataHelper;
 import com.vnpt.room.KhachHang;
 import com.vnpt.room.LoaiPhi;
 import com.vnpt.room.Product;
+import com.vnpt.room.TruBom;
+import com.vnpt.room.TruBomDAO;
 import com.vnpt.room.Xa;
+import com.vnpt.room.XaDAO;
 import com.vnpt.staffhddt.DetailsActivity;
 import com.vnpt.staffhddt.LoginActivity;
 import com.vnpt.staffhddt.MainPos58Activity;
@@ -51,9 +59,12 @@ import com.vnpt.utils.StringBienLai;
 import com.vnpt.webservice.AppServices;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.vnpt.staffhddt.MainPos58Activity.mPOSPrinter;
@@ -68,13 +79,16 @@ import retrofit2.Response;
 public class XuatVeXePos58Fragment extends BaseFragment implements View.OnClickListener, OnEventControlListener {
 
     private static final int REQUEST_BLUE_ADMIN = 888;
-    Spinner spMenhGia,spPhuong;
-//    MaterialEditText edtSoLuong, edtBSX;
-//    Button btnXuatBL, btnInThu, btnCheckTB;
-    Button btnInThu,btnSearch;
-    ImageButton btnClear;
+    Spinner spMenhGia, spPhuong;
+    Button btnInThu, btnSearch, button1, button2, button3, button4, button5, button6, button7, btnCheckTB;
+
+    RadioButton radio_a, radio_b, radio_c, radio_d, radio_e;
+    TextView txtDemo;
+
+    EditText soTien;
+
+    //    ImageButton btnClear;
     MaterialEditText edtSearch;
-//    TextView txtCompanyInfo;
     private AwesomeProgressDialog dg;
     StoreSharePreferences preferences = null;
 
@@ -88,6 +102,7 @@ public class XuatVeXePos58Fragment extends BaseFragment implements View.OnClickL
     LoaiPhi loaiPhi = null;
     Xa xa = null;
     Xa phuong = null;
+
 
     ArrayList<KhachHang> listKhachHang;
 
@@ -124,71 +139,99 @@ public class XuatVeXePos58Fragment extends BaseFragment implements View.OnClickL
 
     @Override
     protected void init(View layout) {
-        spMenhGia = layout.findViewById(R.id.spMenhGia);
-        spPhuong = layout.findViewById(R.id.spPhuong);
-        btnInThu = layout.findViewById(R.id.btnInThu);
-        btnSearch =layout.findViewById(R.id.btnSearch);
-        btnClear = layout.findViewById(R.id.btnClear);
-        edtSearch = layout.findViewById(R.id.edtSearch);
-        listViewProduct = layout.findViewById(R.id.listproduct);
+        button1 = layout.findViewById(R.id.button1);
+        button2 = layout.findViewById(R.id.button2);
+        button3 = layout.findViewById(R.id.button3);
+        button4 = layout.findViewById(R.id.button4);
+        button5 = layout.findViewById(R.id.button5);
+        button6 = layout.findViewById(R.id.button6);
+        button7 = layout.findViewById(R.id.button7);
 
-//        edtSoLuong = layout.findViewById(R.id.edtSoLuong);
-//        edtBSX = layout.findViewById(R.id.edtBSX);
-//        btnXuatBL = layout.findViewById(R.id.btnXuatBienLai);
-//        btnCheckTB = layout.findViewById(R.id.btnCheck);
-//        txtCompanyInfo = layout.findViewById(R.id.txtCompanyInfo);
+        radio_a = layout.findViewById(R.id.radio_a);
+        radio_b = layout.findViewById(R.id.radio_b);
+        radio_c = layout.findViewById(R.id.radio_c);
+        radio_d = layout.findViewById(R.id.radio_d);
+        radio_e = layout.findViewById(R.id.radio_e);
+
+        soTien = layout.findViewById(R.id.soTien);
+        btnCheckTB = layout.findViewById(R.id.btnCheck);
+
+        txtDemo = layout.findViewById(R.id.txtDemo);
     }
 
     @Override
     protected void setValueForMembers() {
         String name = StoreSharePreferences.getInstance(getContext()).loadStringSavedPreferences(Common.KEY_COMPANY_NAME);
         String mst = StoreSharePreferences.getInstance(getContext()).loadStringSavedPreferences(Common.KEY_MST);
-//        txtCompanyInfo.setText(String.format("%s - MST: %s", name, mst));
 
         type = getArguments().getInt(Common.KEY_COMPANY_TYPE);
+        String url = StoreSharePreferences.getInstance(getContext()).loadStringSavedPreferences("WEBSITE");
+        loadTruBom(url);
+    }
 
-//        if (type == Common.TYPE_VE) {
-//            btnXuatBL.setText(R.string.xuat_ve);
-//        } else {
-//            btnXuatBL.setText(R.string.xuat_bien_lai);
-//        }
+    private void loadTruBom(String url) {
+        ApiClient apiClient2 = AppDataHelper.getApiClient2(url);
+        apiClient2.getThongTinTruBom().enqueue(new Callback<List<TruBom>>() {
+            @Override
+            public void onResponse(Call<List<TruBom>> call, Response<List<TruBom>> response) {
+
+                List<TruBom> truBomList = response.body();
+                radio_a.setText(truBomList.get(0).getName());
+                radio_b.setText(truBomList.get(1).getName());
+                radio_c.setText(truBomList.get(2).getName());
+                if (truBomList.size() > 3 && truBomList.get(3) != null) {
+                    radio_d.setEnabled(true);
+                    radio_d.setText(truBomList.get(3).getName());
+                }
+                if (truBomList.size() > 4 && truBomList.get(4) != null) {
+                    radio_e.setEnabled(true);
+                    radio_e.setText(truBomList.get(4).getName());
+                }
+
+                showProgress(false);
+            }
+
+            @Override
+            public void onFailure(Call<List<TruBom>> call, Throwable t) {
+                showProgress(false);
+                Toast.makeText(getContext(), "Có lỗi xảy ra !", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void xuatHoaDon(String fkey, int idTru, String soTien, String user) {
+        String url = StoreSharePreferences.getInstance(getContext()).loadStringSavedPreferences("WEBSITE");
+        ApiClient apiClient2 = AppDataHelper.getApiClient2(url);
+        apiClient2.xuatPhieuThu(fkey, idTru, soTien, user).enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(Call<String> call, Response<String> response) {
+
+                String traVe = response.body();
+                if (traVe.equals("1")) {
+                    printInvoice(fkey, soTien, idTru);
+                }
+                Toast.makeText(getContext(), "Thành Công", Toast.LENGTH_SHORT).show();
+                showProgress(false);
+            }
+
+            @Override
+            public void onFailure(Call<String> call, Throwable t) {
+                showProgress(false);
+                Toast.makeText(getContext(), "Có lỗi xảy ra !", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
     protected void setEventForMembers() {
-//        btnXuatBL.setOnClickListener(this);
-        btnInThu.setOnClickListener(this);
-        btnSearch.setOnClickListener(this);
-        btnClear.setOnClickListener(this);
-//        btnCheckTB.setOnClickListener(this);
-
-        spMenhGia.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                xa = xaList.get(i);
-                loadPhuong(xa.getID());
-//                Toast.makeText(getContext(), loaiPhi.getPATTERN(), Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-                Toast.makeText(getContext(), "Vui lòng chọn ít nhất một loại phí", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        spPhuong.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                phuong = phuongList.get(i);
-                loadKhachHang(phuong.getID());
-//                Toast.makeText(getContext(), loaiPhi.getPATTERN(), Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-                Toast.makeText(getContext(), "Vui lòng chọn ít nhất một loại phí", Toast.LENGTH_SHORT).show();
-            }
-        });
+        button1.setOnClickListener(this);
+        button2.setOnClickListener(this);
+        button3.setOnClickListener(this);
+        button4.setOnClickListener(this);
+        button5.setOnClickListener(this);
+        button6.setOnClickListener(this);
+        button7.setOnClickListener(this);
+        btnCheckTB.setOnClickListener(this);
     }
 
     @Override
@@ -205,18 +248,7 @@ public class XuatVeXePos58Fragment extends BaseFragment implements View.OnClickL
         super.onViewCreated(view, savedInstanceState);
         Intent intent = getActivity().getIntent();
         if (intent != null) {
-            loaiPhiList = (List< LoaiPhi>) intent.getSerializableExtra("KEY_LIST_FEE");
-            xaList = (List< Xa>) intent.getSerializableExtra("KEY_XA");
-            if (xaList != null && xaList.size() > 0) {
-                ArrayAdapter<Xa> adapter = new ArrayAdapter<Xa>(getContext(),
-                        android.R.layout.simple_dropdown_item_1line, xaList);
-                spMenhGia.setAdapter(adapter);
-            } else {
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(),
-                        android.R.layout.simple_dropdown_item_1line, PRICES);
-                spMenhGia.setAdapter(adapter);
-            }
-            spMenhGia.setSelection(0);
+            loaiPhiList = (List<LoaiPhi>) intent.getSerializableExtra("KEY_LIST_FEE");
         }
     }
 
@@ -309,52 +341,164 @@ public class XuatVeXePos58Fragment extends BaseFragment implements View.OnClickL
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.btnXuatBienLai: {
+            case R.id.button1: {
                 if (mPOSPrinter.isBTActivated()) {
-//                    attemptGetInv();
-                    Print_Test();
+                    try {
+                        TimeUnit.MILLISECONDS.sleep(1);
+                        long currentTime = System.currentTimeMillis();
+                        String keyData = "INVE_" + currentTime;
+                        int check = getRaioCheck();
+                        if (check == 0) {
+                            Toast.makeText(getContext(), "Chưa chọn trụ", Toast.LENGTH_SHORT).show();
+                        }
+                        String soTien = button1.getText().toString().replaceAll("[^0-9]+", "");
+                        xuatHoaDon(keyData, check, soTien, StoreSharePreferences.getInstance(getContext()).loadStringSavedPreferences(Common.KEY_USER_NAME));
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
                 } else {
                     Toast.makeText(getContext(), "Vui lòng bật bluetooth và kết nối máy in", Toast.LENGTH_SHORT).show();
                 }
                 break;
             }
-            case R.id.btnInThu: {
+            case R.id.button2: {
                 if (mPOSPrinter.isBTActivated()) {
-                    Print_Test();
+                    try {
+                        TimeUnit.MILLISECONDS.sleep(1);
+                        long currentTime = System.currentTimeMillis();
+                        String keyData = "INVE_" + currentTime;
+                        int check = getRaioCheck();
+                        if (check == 0) {
+                            Toast.makeText(getContext(), "Chưa chọn trụ", Toast.LENGTH_SHORT).show();
+                        }
+                        String soTien = button2.getText().toString().replaceAll("[^0-9]+", "");
+                        xuatHoaDon(keyData, check, soTien, StoreSharePreferences.getInstance(getContext()).loadStringSavedPreferences(Common.KEY_USER_NAME));
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
                 } else {
                     Toast.makeText(getContext(), "Vui lòng bật bluetooth và kết nối máy in", Toast.LENGTH_SHORT).show();
                 }
-
+                break;
+            }
+            case R.id.button3: {
+                if (mPOSPrinter.isBTActivated()) {
+                    try {
+                        TimeUnit.MILLISECONDS.sleep(1);
+                        long currentTime = System.currentTimeMillis();
+                        String keyData = "INVE_" + currentTime;
+                        int check = getRaioCheck();
+                        if (check == 0) {
+                            Toast.makeText(getContext(), "Chưa chọn trụ", Toast.LENGTH_SHORT).show();
+                        }
+                        String soTien = button3.getText().toString().replaceAll("[^0-9]+", "");
+                        xuatHoaDon(keyData, check, soTien, StoreSharePreferences.getInstance(getContext()).loadStringSavedPreferences(Common.KEY_USER_NAME));
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                } else {
+                    Toast.makeText(getContext(), "Vui lòng bật bluetooth và kết nối máy in", Toast.LENGTH_SHORT).show();
+                }
+                break;
+            }
+            case R.id.button4: {
+                if (mPOSPrinter.isBTActivated()) {
+                    try {
+                        TimeUnit.MILLISECONDS.sleep(1);
+                        long currentTime = System.currentTimeMillis();
+                        String keyData = "INVE_" + currentTime;
+                        int check = getRaioCheck();
+                        if (check == 0) {
+                            Toast.makeText(getContext(), "Chưa chọn trụ", Toast.LENGTH_SHORT).show();
+                        }
+                        String soTien = button4.getText().toString().replaceAll("[^0-9]+", "");
+                        xuatHoaDon(keyData, check, soTien, StoreSharePreferences.getInstance(getContext()).loadStringSavedPreferences(Common.KEY_USER_NAME));
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                } else {
+                    Toast.makeText(getContext(), "Vui lòng bật bluetooth và kết nối máy in", Toast.LENGTH_SHORT).show();
+                }
+                break;
+            }
+            case R.id.button5: {
+                if (mPOSPrinter.isBTActivated()) {
+                    try {
+                        TimeUnit.MILLISECONDS.sleep(1);
+                        long currentTime = System.currentTimeMillis();
+                        String keyData = "INVE_" + currentTime;
+                        int check = getRaioCheck();
+                        if (check == 0) {
+                            Toast.makeText(getContext(), "Chưa chọn trụ", Toast.LENGTH_SHORT).show();
+                        }
+                        String soTien = button5.getText().toString().replaceAll("[^0-9]+", "");
+                        xuatHoaDon(keyData, check, soTien, StoreSharePreferences.getInstance(getContext()).loadStringSavedPreferences(Common.KEY_USER_NAME));
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                } else {
+                    Toast.makeText(getContext(), "Vui lòng bật bluetooth và kết nối máy in", Toast.LENGTH_SHORT).show();
+                }
+                break;
+            }
+            case R.id.button6: {
+                if (mPOSPrinter.isBTActivated()) {
+                    try {
+                        TimeUnit.MILLISECONDS.sleep(1);
+                        long currentTime = System.currentTimeMillis();
+                        String keyData = "INVE_" + currentTime;
+                        int check = getRaioCheck();
+                        if (check == 0) {
+                            Toast.makeText(getContext(), "Chưa chọn trụ", Toast.LENGTH_SHORT).show();
+                        }
+                        String soTien = button6.getText().toString().replaceAll("[^0-9]+", "");
+                        xuatHoaDon(keyData, check, soTien, StoreSharePreferences.getInstance(getContext()).loadStringSavedPreferences(Common.KEY_USER_NAME));
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                } else {
+                    Toast.makeText(getContext(), "Vui lòng bật bluetooth và kết nối máy in", Toast.LENGTH_SHORT).show();
+                }
+                break;
+            }
+            case R.id.button7: {
+                if (mPOSPrinter.isBTActivated()) {
+                    try {
+                        TimeUnit.MILLISECONDS.sleep(1);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    long currentTime = System.currentTimeMillis();
+                        String keyData = "INVE_" + currentTime;
+                        int check = getRaioCheck();
+                        if (check == 0) {
+                            Toast.makeText(getContext(), "Chưa chọn trụ", Toast.LENGTH_SHORT).show();
+                        }
+                    String soTienText = soTien.getText().toString().replaceAll("[^0-9]+", "")+"000";
+                    xuatHoaDon(keyData, check, soTienText, StoreSharePreferences.getInstance(getContext()).loadStringSavedPreferences(Common.KEY_USER_NAME));
+                } else {
+                    Toast.makeText(getContext(), "Vui lòng bật bluetooth và kết nối máy in", Toast.LENGTH_SHORT).show();
+                }
                 break;
             }
             case R.id.btnCheck: {
                 checkPrinter();
                 break;
             }
-            case R.id.btnSearch:{
-                searhKhachHang();
-                break;
-            }
-            case R.id.btnClear:{
-                edtSearch.setText("");
-                searhKhachHang();
-                break;
-            }
         }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public void searhKhachHang(){
+    public void searhKhachHang() {
         String searchText = edtSearch.getText().toString().trim();
         String searchText2 = StringBienLai.removeAccent(searchText);
         List<KhachHang> khachHangSearch = khachHangList.stream().filter(p ->
                 StringBienLai.removeAccent(p.getNAME().substring(p.getNAME().lastIndexOf(',') + 1).trim().toLowerCase()).contains(searchText2.trim().toLowerCase())).collect(Collectors.toList());
-        if(khachHangSearch.size()>0 && khachHangSearch != null)
-        {
+        if (khachHangSearch.size() > 0 && khachHangSearch != null) {
             listKhachHang = new ArrayList<>();
-            for(KhachHang kh : khachHangSearch){
-                if(kh.getDIACHI() == null || kh.getDIACHI().length() == 0){
-                    kh.setDIACHI(phuong.getNAME() +" - "+ xa.getNAME());
+            for (KhachHang kh : khachHangSearch) {
+                if (kh.getDIACHI() == null || kh.getDIACHI().length() == 0) {
+                    kh.setDIACHI(phuong.getNAME() + " - " + xa.getNAME());
                 }
                 listKhachHang.add(new KhachHang(kh));
             }
@@ -371,7 +515,7 @@ public class XuatVeXePos58Fragment extends BaseFragment implements View.OnClickL
                     startActivity(intent);
                 }
             });
-        }else{
+        } else {
             listViewProduct.setAdapter(null);
         }
     }
@@ -473,9 +617,9 @@ public class XuatVeXePos58Fragment extends BaseFragment implements View.OnClickL
 
     }
 
-//    public void printInvoice(String inv, String bsx) {
-//
-//        String[] soBL = inv.split("_");
+    public void printInvoice(String fkey, String soTien, int idTru) {
+
+        String[] soBL = fkey.split("_");
 //        BienLai bienLai = new BienLai();
 //        bienLai.setMoTa(loaiPhi.getNAME());
 //        bienLai.setGiaTien(loaiPhi.getAMOUNT());
@@ -483,48 +627,47 @@ public class XuatVeXePos58Fragment extends BaseFragment implements View.OnClickL
 //        bienLai.setSo(soBL[2].trim());
 //        bienLai.setKyHieu(loaiPhi.getSERIAL());
 //        bienLai.setPortal(StoreSharePreferences.getInstance(getContext()).loadStringSavedPreferences(Common.KEY_COMPANY_PORTAL));
-//
-//        String date = new SimpleDateFormat("dd/MM/yyyy HH:mm").format(new Date());
-//
-//        //Get current locale information
-////        Locale currentLocale = Locale.getDefault();
-////        //Get currency instance from locale; This will have all currency related information
-////        Currency currentCurrency = Currency.getInstance(currentLocale);
-////        //Currency Formatter specific to locale
-////        NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(currentLocale);
-//
-//        String name = (type == Common.TYPE_VE) ? "VÉ ĐIỆN TỬ" :  "BIÊN LAI ĐIỆN TỬ";
-//        String search_des = (type == Common.TYPE_VE) ? "Để tra cứu vé gốc kính mời truy cập vào link : " : "Để tra cứu biên lai gốc kính mời truy cập vào link : ";
-//
-//        String html = "<html>\n" +
-//                "                <body>\n" +
-//                "                <style>\n" +
-//                "                 </style>\n" +
-//                "<div style=\"text-align:center;\">"+
-//                "                   <h2 style=\\\"text-align: center;font-size: 40px\\\">"+StoreSharePreferences.getInstance(getContext()).loadStringSavedPreferences(Common.KEY_COMPANY_NAME)+"</h2>\n" +
-//                "                       <h2 style=\\\"text-align: center;font-size: 40px\\\">MST: "+ StoreSharePreferences.getInstance(getContext()).loadStringSavedPreferences(Common.KEY_MST) +
-//                "               <h1 style=\\\"text-align: center;font-size: 40px\\\">"+name +"</h1>\n" +
-//                "<h3 style='text-align:center;font-size: 30px'>("+loaiPhi.getNAME()+")</h3>" +
-//                // "<h3 style='text-align:right;font-size: 20px'>(BLĐT này không thay thế cho BL thu phí, lệ phí)</h3>" +
-//                "</div>"+
-//                "                \n" +"<h2 style=\\\"text-align: center;font-size: 40px\\\">Ngày: "+date+"</h2>"+
-//                "               <h3 style=\\\"text-align:right;font-size: 30px\\\">Mẫu: "+ bienLai.getMau() +"</h3>\n" +
-//                "                   <h3 style=\\\"text-align:right;font-size: 30px\\\">Ký hiệu: "+bienLai.getKyHieu()+"</h3>\n" +
-//                "                    <h2 style=\\\"text-align:right;font-size: 30px\\\">Số vé: "+bienLai.getSo()+"</h2>\n" +
-//                //"                    <h2 style=\\\"text-align: right;font-size: 20px\\\">SL: "+soBL+"</h2>\n" +
-//                        "<h2 style=\"font-size:30px\">Biển số xe: "+bsx+"</h2>\n" +
-//                "                 <h2>Giá: "+ Math.round(bienLai.getGiaTien()) +" VND</h2>\n" +
-//                "<h2>("+ StringBienLai.docSo(bienLai.getGiaTien()) +")</h2>" +
-//
-//                "               <h1 style=\\\"text-align: center\\\">-------------------------- </h1>" +
-//                "<h3 style='text-align:right;font-size: 20px'>"+search_des+"</h3>" +
-//                "<h3>"+bienLai.getPortal()+"</h3><h3>Mã tra cứu: </h3><h3>"+inv+"</h3>"+
-//                "                </body>\n" +
-//                "                </html>";
-//
-//        new converHTMLTask().execute(html);
-//
-//    }
+
+        String date = new SimpleDateFormat("dd/MM/yyyy HH:mm").format(new Date());
+
+        String name = (type == Common.TYPE_VE) ? "VÉ ĐIỆN TỬ" : "BIÊN LAI ĐIỆN TỬ";
+        String search_des = (type == Common.TYPE_VE) ? "Để tra cứu vé gốc kính mời truy cập vào link : " : "Để tra cứu biên lai gốc kính mời truy cập vào link : ";
+        // Tạo mã QR từ dữ liệu fkey
+        String strTraCuu = StoreSharePreferences.getInstance(getContext()).loadStringSavedPreferences(Common.KEY_COMPANY_PORTAL) + "?strfkey=" + fkey;
+        Bitmap qrCodeBitmap = QRCodeGenerator.generateQRCode(strTraCuu, 300, 300);
+
+        // Chuyển đổi Bitmap thành chuỗi Base64 để chèn vào HTML
+        String qrCodeBase64 = ImageUtils.bitmapToBase64(qrCodeBitmap);
+
+        // Chèn mã QR vào HTML
+        String qrCodeImageTag = "<img src='data:image/png;base64," + qrCodeBase64 + "' width='150' height='150'/>";
+        String html = "<html>\n" +
+                "  <body>\n" +
+                "    <style>\n" +
+                "      body {\n" +
+                "        line-height: 1; \n" +
+                "      }\n" +
+                "    </style>\n" +
+                "<div style=\"text-align:center;\">" +
+                "                   <h2 style=\\\"text-align: center;font-size: 40px\\\">" + StoreSharePreferences.getInstance(getContext()).loadStringSavedPreferences(Common.KEY_COMPANY_NAME) + "</h2>\n" +
+                "                       <h2 style=\\\"text-align: center;font-size: 40px\\\">MST: " + StoreSharePreferences.getInstance(getContext()).loadStringSavedPreferences(Common.KEY_MST) +
+//                "               <h1 style=\\\"text-align: center;font-size: 40px\\\">" + name + "</h1>\n" +
+                "<h3 style='text-align:center;font-size: 30px'>(Phiếu thu tiền xăng dầu)</h3>" +
+                "</div>" +
+                "                \n" + "<h2 style=\\\"text-align: center;font-size: 40px\\\">Ngày: " + date + "</h2>" +
+                "                 <h2>Giá: " + Math.round(Float.parseFloat(soTien)) + " VND (" + StringBienLai.docSo(Double.parseDouble(soTien)) + ")</h2>\n" +
+                "               <h1 style=\\\"text-align: center\\\">-------------------------- </h1>" +
+                "<h3 style='text-align:right;font-size: 20px'>" + search_des + "</h3>" +
+                "<h3>" + strTraCuu + "</h3>" +
+                "<div style=\"text-align:center;\">" +
+                "" + qrCodeImageTag + "" +
+                "</div>" +
+                "                </body>\n" +
+                "                </html>";
+
+        new converHTMLTask().execute(html);
+
+    }
 
     private class converHTMLTask extends AsyncTask<String, Void, Bitmap> {
         @Override
@@ -554,7 +697,7 @@ public class XuatVeXePos58Fragment extends BaseFragment implements View.OnClickL
     }
 
     private void loadPhuong(int id) {
-        ApiClient apiClient2 = AppDataHelper.getApiClient2();
+        ApiClient apiClient2 = AppDataHelper.getApiClient2("");
         apiClient2.getPhuong(id, StoreSharePreferences.getInstance(getContext()).loadStringSavedPreferences(Common.KEY_USER_NAME)).enqueue(new Callback<List<Xa>>() {
             @Override
             public void onResponse(Call<List<Xa>> call, Response<List<Xa>> response) {
@@ -573,6 +716,7 @@ public class XuatVeXePos58Fragment extends BaseFragment implements View.OnClickL
                 spPhuong.setSelection(0);
                 showProgress(false);
             }
+
             @Override
             public void onFailure(Call<List<Xa>> call, Throwable t) {
                 showProgress(false);
@@ -587,7 +731,7 @@ public class XuatVeXePos58Fragment extends BaseFragment implements View.OnClickL
 //    }
 
     private void loadKhachHang(int id) {
-        ApiClient apiClient2 = AppDataHelper.getApiClient2();
+        ApiClient apiClient2 = AppDataHelper.getApiClient2("");
         apiClient2.getKhachHangs(id).enqueue(new Callback<List<KhachHang>>() {
             @Override
             public void onResponse(Call<List<KhachHang>> call, Response<List<KhachHang>> response) {
@@ -595,12 +739,11 @@ public class XuatVeXePos58Fragment extends BaseFragment implements View.OnClickL
                 khachHangList = response.body();
 //                showProgress(false);
 
-                if(khachHangList.size()>0 && khachHangList != null)
-                {
+                if (khachHangList.size() > 0 && khachHangList != null) {
                     listKhachHang = new ArrayList<>();
-                    for(KhachHang kh : khachHangList){
-                        if(kh.getDIACHI() == null || kh.getDIACHI().length() == 0){
-                            kh.setDIACHI(phuong.getNAME() +" - "+ xa.getNAME());
+                    for (KhachHang kh : khachHangList) {
+                        if (kh.getDIACHI() == null || kh.getDIACHI().length() == 0) {
+                            kh.setDIACHI(phuong.getNAME() + " - " + xa.getNAME());
                         }
                         listKhachHang.add(new KhachHang(kh));
                     }
@@ -617,10 +760,11 @@ public class XuatVeXePos58Fragment extends BaseFragment implements View.OnClickL
                             startActivity(intent);
                         }
                     });
-                }else{
+                } else {
                     listViewProduct.setAdapter(null);
                 }
             }
+
             @Override
             public void onFailure(Call<List<KhachHang>> call, Throwable t) {
                 showProgress(false);
@@ -628,13 +772,12 @@ public class XuatVeXePos58Fragment extends BaseFragment implements View.OnClickL
         });
     }
 
-    private void Print_BMP(Bitmap mBitmap){
+    private void Print_BMP(Bitmap mBitmap) {
         //	byte[] buffer = PrinterCommand.POS_Set_PrtInit();
         int nMode = 0;
         int nPaperWidth = 384;
 
-        if(mBitmap != null)
-        {
+        if (mBitmap != null) {
             byte[] data = PrintPicture.POS_PrintBMP(mBitmap, nPaperWidth, nMode);
             //	SendDataByte(buffer);
             SendDataByte(Command.ESC_Init);
@@ -658,6 +801,31 @@ public class XuatVeXePos58Fragment extends BaseFragment implements View.OnClickL
             return;
         }
         mPOSPrinter.write(data);
+    }
+
+    private Integer getRaioCheck() {
+        if (radio_a.isChecked()) {
+            return 1;
+        } else if (radio_b.isChecked()) {
+            return 2;
+        } else if (radio_c.isChecked()) {
+            return 3;
+        } else if (radio_d.isChecked()) {
+            return 4;
+        } else if (radio_e.isChecked()) {
+            return 5;
+        } else
+            return 0;
+    }
+
+    private void alertDemo(String menhGia) {
+        if (radio_a.isChecked()) {
+            txtDemo.setText("trụ 1 - Số tiền: " + menhGia + StoreSharePreferences.getInstance(getContext()).loadStringSavedPreferences("WEBSITE"));
+        } else if (radio_b.isChecked()) {
+            txtDemo.setText("trụ 2 - Số tiền: " + menhGia + StoreSharePreferences.getInstance(getContext()).loadStringSavedPreferences("WEBSITE"));
+        } else if (radio_c.isChecked()) {
+            txtDemo.setText("trụ 3 - Số tiền: " + menhGia + StoreSharePreferences.getInstance(getContext()).loadStringSavedPreferences("WEBSITE"));
+        }
     }
 
     private void Print_Test() {
@@ -744,9 +912,9 @@ public class XuatVeXePos58Fragment extends BaseFragment implements View.OnClickL
             //Bind sữ liệu phần tử vào View
             KhachHang khachHang = (KhachHang) getItem(position);
             ((TextView) viewProduct.findViewById(R.id.idproduct)).setText(String.format("STT : %d", khachHang.getID()));
-            if(khachHang.getNAME().length() == 0 && khachHang.getCUSNAME().length() > 0){
+            if (khachHang.getNAME().length() == 0 && khachHang.getCUSNAME().length() > 0) {
                 ((TextView) viewProduct.findViewById(R.id.nameproduct)).setText(String.format("Tên KH : %s", khachHang.getCUSNAME()));
-            }else{
+            } else {
                 ((TextView) viewProduct.findViewById(R.id.nameproduct)).setText(String.format("Tên KH : %s", khachHang.getNAME()));
             }
             ((TextView) viewProduct.findViewById(R.id.diachi)).setText(String.format("Địa chỉ : %s", khachHang.getDIACHI()));

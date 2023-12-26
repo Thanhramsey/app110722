@@ -55,7 +55,7 @@ public class AppDataHelper {
         return retrofit;
     }
 
-    public static Retrofit getRetrofit2() {
+    public static Retrofit getRetrofit2(String url) {
 
         OkHttpClient client = new OkHttpClient.Builder().hostnameVerifier(new HostnameVerifier() {
             @Override
@@ -66,8 +66,7 @@ public class AppDataHelper {
 
         if (retrofit2 == null) {
             retrofit2 = new Retrofit.Builder()
-                    .baseUrl("http://bqlctdtchuse.vn/")
-//                    .baseUrl("http://tramnuockongchro.com.vn/")
+                    .baseUrl(url)
                     .client(getUnsafeOkHttpClient().build())
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
@@ -82,8 +81,8 @@ public class AppDataHelper {
     public static ApiClient getApiClient() {
         return getRetrofit().create(ApiClient.class);
     }
-    public static ApiClient getApiClient2() {
-        return getRetrofit2().create(ApiClient.class);
+    public static ApiClient getApiClient2(String url) {
+        return getRetrofit2(url).create(ApiClient.class);
     }
 
     public static OkHttpClient.Builder getUnsafeOkHttpClient() {
